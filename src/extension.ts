@@ -1,13 +1,14 @@
 import * as vscode from "vscode";
+import { SortInterfaceExtension } from "./sort-interface-extension";
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('Congratulations, your extension "sort-interface-property" is now active!');
+  const extension = new SortInterfaceExtension();
 
   let disposable = vscode.commands.registerCommand("extension.sortInterface", () => {
-    // The code you place here will be executed every time your command is executed
+    extension.sortActiveWindowInterfaceMembers();
 
-    // Display a message box to the user
-    vscode.window.showInformationMessage("Hello World!");
+    vscode.window.showInformationMessage("Successfully sorted all interfaces!");
   });
 
   context.subscriptions.push(disposable);
