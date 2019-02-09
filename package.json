@@ -1,0 +1,45 @@
+{
+  "name": "sort-interface-property",
+  "displayName": "sort-interface-property",
+  "description": "Sort TypeScript interface properties",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.31.0"
+  },
+  "main": "./out/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "node ./node_modules/jest/bin/jest.js"
+  },
+  "devDependencies": {
+    "@types/node": "^10.12.21",
+    "@types/jest": "^23.6.0",
+    "typescript": "^3.3.1",
+    "vscode": "^1.1.28",
+    "tslint": "^5.12.1",
+    "ts-jest": "^23.10.5",
+    "prettier": "^1.16.4",
+    "jest": "^23.6.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact",
+    "onCommand:extension.sortInterface"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.sortInterface",
+        "title": "Typescipt: Sort interface properties"
+      }
+    ]
+  }
+}
