@@ -35,7 +35,7 @@ export class SimpleTsSorter implements ITsSorter {
 
         let output = "";
 
-        const SPACE = " ".repeat(this.configurator.getValue("leadingSpace") as number);
+        const SPACE = " ".repeat(this.configurator.getValue("indentSpace") as number);
         const NEWLINE = "\n";
 
         let rangeToRemove: ts.TextRange | undefined = undefined;
@@ -51,16 +51,12 @@ export class SimpleTsSorter implements ITsSorter {
 
           rangeToRemove = this.computeRemovalRange(element, rangeToRemove);
 
-          const comments = element.comments;
-          if (comments && comments.leadingComment && comments.leadingComment.length > 0) {
-            output += SPACE;
-            output += comments.leadingComment.map(c => c.text).join(`${NEWLINE}${SPACE}`);
-            output += NEWLINE;
-          }
+          // Leading comments included in the element.fullText already
 
           output += SPACE;
           output += element.fullText;
 
+          const comments = element.comments;
           if (comments && comments.trailingComment && comments.trailingComment.length > 0) {
             output += SPACE;
             output += comments.trailingComment.map(c => c.text).join("");
@@ -99,7 +95,7 @@ export class SimpleTsSorter implements ITsSorter {
     return { pos, end };
   }
 
-  private sortByName(a: ITsInterfaceMemberNode, b: ITsInterfaceMemberNode): number {
+  private sortByName = (a: ITsInterfaceMemberNode, b: ITsInterfaceMemberNode): number => {
     const nameA = this.getStringFromName(a.element.name);
     const nameB = this.getStringFromName(b.element.name);
     if (nameA && nameB) {
@@ -111,11 +107,11 @@ export class SimpleTsSorter implements ITsSorter {
     } else {
       return 0;
     }
-  }
+  };
 
-  private getStringFromName(
+  private getStringFromName = (
     name: ts.Identifier | ts.StringLiteral | ts.NumericLiteral | ts.ComputedPropertyName | undefined
-  ): string | undefined {
+  ): string | undefined => {
     if (!name) {
       return undefined;
     }
@@ -134,5 +130,5 @@ export class SimpleTsSorter implements ITsSorter {
         return undefined;
         break;
     }
-  }
+  };
 }
