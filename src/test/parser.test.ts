@@ -7,7 +7,7 @@ import {
   tcInterfaceWithOneProperty,
   tcInterfaceWithExtends,
   tcInterfaceWithComment
-} from "./testCases";
+} from "./test-cases";
 
 describe("Parser", () => {
   const parser = new SimpleTsParser();
