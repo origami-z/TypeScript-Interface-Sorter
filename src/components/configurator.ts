@@ -1,20 +1,31 @@
-export interface IConfiguration {
-  default: object;
-  override?: object;
+export interface IInterfaceSorterConfiguration {
+  leadingSpace?: number;
+  lineBetweenMembers?: boolean;
 }
 
-export interface IConfigurator {
-  getValue(key: any): any;
+export type InterfaceSorterConfigurationKeys = keyof IInterfaceSorterConfiguration;
+
+export interface IConfiguration<T extends { [key: string]: any }> {
+  default: T;
+  override?: T;
 }
 
-export class SimpleConfigurator implements IConfigurator {
-  private config: IConfiguration;
+export interface IConfigurator<T extends { [key: string]: any }> {
+  getValue(key: keyof T): any;
+}
 
-  public constructor(config: IConfiguration) {
-    throw new Error("Method not implemented.");
+export class SimpleConfigurator<T extends { [key: string]: any }> implements IConfigurator<T> {
+  private config: IConfiguration<T>;
+
+  public constructor(config: IConfiguration<T>) {
+    this.config = config;
   }
 
-  public getValue(key: any): any {
-    throw new Error("Method not implemented.");
+  public getValue(key: keyof T): any {
+    if (this.config.override && this.config.override[key]) {
+      return this.config.override[key];
+    } else {
+      return this.config.default[key];
+    }
   }
 }

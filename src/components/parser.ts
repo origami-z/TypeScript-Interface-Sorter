@@ -14,8 +14,6 @@ export interface IComments {
 }
 
 export interface ITsNode {
-  tsNode: ts.Node;
-
   start: ts.LineAndCharacter;
   end: ts.LineAndCharacter;
 
@@ -23,10 +21,12 @@ export interface ITsNode {
 }
 
 export interface ITsInterfaceNode extends ITsNode {
+  declaration: ts.InterfaceDeclaration;
   members: Array<ITsInterfaceMemberNode>;
 }
 
 export interface ITsInterfaceMemberNode extends ITsNode {
+  element: ts.TypeElement;
   fullText: string;
 }
 
@@ -78,11 +78,11 @@ export class SimpleTsParser implements ITsParser {
         const interfaceNode = node as ts.InterfaceDeclaration;
         const lines = this.getCodeLineNumbers(node, sourceFile);
         const delintedInterface: ITsInterfaceNode = {
-          tsNode: interfaceNode,
+          declaration: interfaceNode,
           start: lines.start,
           end: lines.end,
           comments: this.getComments(node, sourceFileText),
-          members: this.delintInterfaceProperties(interfaceNode, sourceFile, sourceFileText)
+          members: this.delintInterfaceElements(interfaceNode, sourceFile, sourceFileText)
         };
         interfaceNodes.push(delintedInterface);
         break;
@@ -123,7 +123,7 @@ export class SimpleTsParser implements ITsParser {
     return { start, end };
   }
 
-  private delintInterfaceProperties(
+  private delintInterfaceElements(
     node: ts.InterfaceDeclaration,
     sourceFile: ts.SourceFile,
     sourceFileText: string
@@ -132,7 +132,7 @@ export class SimpleTsParser implements ITsParser {
       const lines = this.getCodeLineNumbers(x, sourceFile);
       const comments = this.getComments(x, sourceFileText);
       return {
-        tsNode: x,
+        element: x,
         fullText: x.getFullText(sourceFile).trim(),
         start: lines.start,
         end: lines.end,
