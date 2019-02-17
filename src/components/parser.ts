@@ -27,7 +27,7 @@ export interface ITsInterfaceNode extends ITsNode {
 
 export interface ITsInterfaceMemberNode extends ITsNode {
   element: ts.TypeElement;
-  fullText: string;
+  text: string;
 }
 
 export interface ITsParser {
@@ -133,7 +133,7 @@ export class SimpleTsParser implements ITsParser {
       const comments = this.getComments(x, sourceFileText);
       return {
         element: x,
-        fullText: x.getFullText(sourceFile).trim(),
+        text: x.getText(sourceFile).trim(),
         start: lines.start,
         end: lines.end,
         comments

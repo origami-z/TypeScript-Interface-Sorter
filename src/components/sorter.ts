@@ -51,12 +51,16 @@ export class SimpleTsSorter implements ITsSorter {
 
           rangeToRemove = this.computeRemovalRange(element, rangeToRemove);
 
-          // Leading comments included in the element.fullText already
+          const comments = element.comments;
+          if (comments && comments.leadingComment && comments.leadingComment.length > 0) {
+            output += SPACE;
+            output += comments.leadingComment.map(c => c.text).join(`${NEWLINE}${SPACE}`);
+            output += NEWLINE;
+          }
 
           output += SPACE;
-          output += element.fullText;
+          output += element.text;
 
-          const comments = element.comments;
           if (comments && comments.trailingComment && comments.trailingComment.length > 0) {
             output += SPACE;
             output += comments.trailingComment.map(c => c.text).join("");
