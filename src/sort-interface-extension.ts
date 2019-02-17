@@ -10,23 +10,25 @@ import {
 
 import { ITsParser, SimpleTsParser } from "./components/parser";
 import { ITsSorter, SimpleTsSorter } from "./components/sorter";
-import { IConfigurator, SimpleConfigurator, IConfiguration } from "./components/configurator";
-
-export interface IInterfaceSorterConfig {
-  spaceBetweenProperties: boolean;
-  indentSpace: number;
-}
+import {
+  IConfigurator,
+  SimpleConfigurator,
+  IConfiguration,
+  IInterfaceSorterConfiguration
+} from "./components/configurator";
 
 export class SortInterfaceExtension {
-  private defaultConfig: IInterfaceSorterConfig = {
-    spaceBetweenProperties: true,
+  private defaultConfig: IInterfaceSorterConfiguration = {
+    lineBetweenMembers: true,
     indentSpace: 2
   };
 
-  private config: IConfiguration = {
+  private config: IConfiguration<IInterfaceSorterConfiguration> = {
     default: this.defaultConfig
   };
-  private configurator: IConfigurator = new SimpleConfigurator(this.config);
+  private configurator: IConfigurator<IInterfaceSorterConfiguration> = new SimpleConfigurator(
+    this.config
+  );
   private parser: ITsParser = new SimpleTsParser();
   private sorter: ITsSorter = new SimpleTsSorter(this.configurator);
 

@@ -1,5 +1,5 @@
 export interface IInterfaceSorterConfiguration {
-  leadingSpace?: number;
+  indentSpace?: number;
   lineBetweenMembers?: boolean;
 }
 
