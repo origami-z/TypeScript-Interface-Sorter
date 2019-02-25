@@ -19,7 +19,7 @@ class MyClass implements IInterface {
 export const tcInterfaceWithMultipleProperties = `
 interface IInterface {
   name: string;
-  
+
   length: number;
 
   description: string;
@@ -29,13 +29,15 @@ interface IInterface {
 export const tcInterfaceWithReadonlyProperties = `
 interface IInterface {
   readonly name: string;
-  
+
   readonly length: number;
 }
 `;
 
+export const constJsDocComments = `/** This is an example interface */`;
+
 export const tcInterfaceWithComment = `
-/** This is an example interface */
+${constJsDocComments}
 ${tcInterfaceWithOneProperty}`;
 
 export const tcInterfaceWithJsDocProperty = `
@@ -44,7 +46,7 @@ interface IInterface {
    * Some jsDoc to describe the property
    */
   name: string;
-  
+
   /** One liner of the jsDoc */
   length: number;
 }
