@@ -43,7 +43,7 @@ export class SimpleTsSorter implements ITsSorter {
         for (let j = 0; j < sortedElements.length; j++) {
           output += NEWLINE;
 
-          if (j != 0 && (this.configurator.getValue("lineBetweenMembers") as boolean)) {
+          if (j !== 0 && (this.configurator.getValue("lineBetweenMembers") as boolean)) {
             output += NEWLINE;
           }
 
