@@ -2,10 +2,11 @@ import * as vscode from "vscode";
 import { SortInterfaceExtension } from "./sort-interface-extension";
 
 export function activate(context: vscode.ExtensionContext) {
-  console.log('Congratulations, your extension "sort-interface-property" is now active!');
+  console.log('Congratulations, your extension "tsInterfaceSorter" is now active!');
   const extension = new SortInterfaceExtension();
+  extension.updateFromWorkspaceConfig();
 
-  let disposable = vscode.commands.registerCommand("extension.sortInterface", () => {
+  let disposable = vscode.commands.registerCommand("extension.sortTsInterface", () => {
     extension.sortActiveWindowInterfaceMembers();
 
     vscode.window.showInformationMessage("Successfully sorted all interfaces!");
@@ -15,4 +16,4 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }

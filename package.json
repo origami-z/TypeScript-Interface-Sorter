@@ -1,6 +1,6 @@
 {
-  "name": "sort-interface-property",
-  "displayName": "sort-interface-property",
+  "name": "ts-interface-sorter",
+  "displayName": "TypeScript Interface Sorter",
   "description": "Sort TypeScript interface properties",
   "version": "0.0.1",
   "engines": {
@@ -13,18 +13,22 @@
     "lint": "eslint src --ext ts",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "test:unit": "jest"
   },
   "devDependencies": {
-    "@types/vscode": "^1.50.0",
     "@types/glob": "^7.1.3",
+    "@types/jest": "^26.0.15",
     "@types/mocha": "^8.0.0",
     "@types/node": "^12.11.7",
-    "eslint": "^7.9.0",
+    "@types/vscode": "^1.50.0",
     "@typescript-eslint/eslint-plugin": "^4.1.1",
     "@typescript-eslint/parser": "^4.1.1",
+    "eslint": "^7.9.0",
     "glob": "^7.1.6",
+    "jest": "^26.6.2",
     "mocha": "^8.1.3",
+    "ts-jest": "^26.4.3",
     "typescript": "^4.0.2",
     "vscode-test": "^1.4.0"
   },
@@ -36,14 +40,25 @@
     "onLanguage:javascriptreact",
     "onLanguage:typescript",
     "onLanguage:typescriptreact",
-    "onCommand:extension.sortInterface"
+    "onCommand:extension.sortTsInterface"
   ],
   "contributes": {
     "commands": [
       {
-        "command": "extension.sortInterface",
-        "title": "Typescipt: Sort interface properties"
+        "command": "extension.sortTsInterface",
+        "title": "TypeScript Sorter: Sort interface properties"
       }
-    ]
-  }
+    ],
+    "configuration": {
+      "title": "TypeScript Interface Sorter",
+      "properties": {
+        "tsInterfaceSorter.emptyLineBetweenProperties": {
+          "type": "boolean",
+          "default": true,
+          "description": "Controls whether an empty line should be inserted between properties."
+        }
+      }
+    }
+  },
+  "dependencies": {}
 }

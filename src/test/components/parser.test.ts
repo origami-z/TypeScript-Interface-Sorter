@@ -1,4 +1,4 @@
-import { SimpleTsParser } from "../components/parser";
+import { SimpleTsParser } from "../../components/parser";
 
 import {
   tcClassImplementInterface,
@@ -15,6 +15,7 @@ describe("Parser", () => {
   describe("parse number of interface", () => {
     test("should parse no interface", () => {
       const { nodes } = parser.parseInterface(filePath, tcClassImplementInterface);
+      
       expect(nodes.length).toBe(0);
     });
 

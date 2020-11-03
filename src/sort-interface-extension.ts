@@ -5,7 +5,8 @@ import {
   TextDocument,
   TextEditorEdit,
   Position,
-  Range
+  Range,
+  workspace
 } from "vscode";
 
 import { ITsParser, SimpleTsParser } from "./components/parser";
@@ -16,6 +17,9 @@ import {
   IConfiguration,
   IInterfaceSorterConfiguration
 } from "./components/configurator";
+
+const EXTENSION_IDENTIFIER = 'tsInterfaceSorter';
+
 
 export class SortInterfaceExtension {
   private defaultConfig: IInterfaceSorterConfiguration = {
@@ -31,6 +35,16 @@ export class SortInterfaceExtension {
   );
   private parser: ITsParser = new SimpleTsParser();
   private sorter: ITsSorter = new SimpleTsSorter(this.configurator);
+
+  public updateFromWorkspaceConfig() {
+    const fullConfig = workspace.getConfiguration(EXTENSION_IDENTIFIER);
+
+    const override = {
+      lineBetweenMembers: fullConfig.emptyLineBetweenProperties
+    };
+
+    this.configurator.setOverride(override);
+  }
 
   public sortActiveWindowInterfaceMembers(event?: TextDocumentChangeEvent) {
     try {

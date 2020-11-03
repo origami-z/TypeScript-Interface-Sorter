@@ -1,6 +1,6 @@
-import { SimpleTsParser } from "../components/parser";
-import { SimpleTsSorter } from "../components/sorter";
-import { IInterfaceSorterConfiguration, SimpleConfigurator } from "../components/configurator";
+import { SimpleTsParser } from "../../components/parser";
+import { SimpleTsSorter } from "../../components/sorter";
+import { IInterfaceSorterConfiguration, SimpleConfigurator } from "../../components/configurator";
 
 import {
   tcClassImplementInterface,
