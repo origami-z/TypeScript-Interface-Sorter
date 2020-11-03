@@ -114,7 +114,7 @@ export class SimpleTsSorter implements ITsSorter {
   };
 
   private getStringFromName = (
-    name: ts.Identifier | ts.StringLiteral | ts.NumericLiteral | ts.ComputedPropertyName | undefined
+    name: ts.Identifier | ts.StringLiteral | ts.NumericLiteral | ts.ComputedPropertyName | ts.PropertyName | undefined
   ): string | undefined => {
     if (!name) {
       return undefined;
