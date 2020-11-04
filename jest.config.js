@@ -1,5 +1,3 @@
-require("leaked-handles");
-
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
