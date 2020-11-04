@@ -30,8 +30,11 @@ export class SimpleTsSorter implements ITsSorter {
           continue;
         }
 
-        // TODO: Add compareFn into configuration?
-        const sortedElements = oneInterface.members.sort(this.sortByName);
+        const sortedElements = oneInterface.members.sort(
+          this.configurator.getValue("sortByCapitalLetterFirst") as boolean
+            ? this.sortByNameCapitalFirst
+            : this.sortByName
+        );
 
         let output = "";
 
@@ -98,6 +101,26 @@ export class SimpleTsSorter implements ITsSorter {
 
     return { pos, end };
   }
+
+  private sortByNameCapitalFirst = (a: ITsInterfaceMemberNode, b: ITsInterfaceMemberNode): number => {
+    const nameA = this.getStringFromName(a.element.name);
+    const nameB = this.getStringFromName(b.element.name);
+    if (nameA && nameB) {
+      if (nameA < nameB) {
+        return -1;
+      } else if (nameA > nameB) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } else if (nameA) {
+      return 1;
+    } else if (nameB) {
+      return -1;
+    } else {
+      return 0;
+    }
+  };
 
   private sortByName = (a: ITsInterfaceMemberNode, b: ITsInterfaceMemberNode): number => {
     const nameA = this.getStringFromName(a.element.name);

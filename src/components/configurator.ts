@@ -1,6 +1,7 @@
 export interface IInterfaceSorterConfiguration {
   indentSpace?: number;
   lineBetweenMembers?: boolean;
+  sortByCapitalLetterFirst?: boolean;
 }
 
 export type InterfaceSorterConfigurationKeys = keyof IInterfaceSorterConfiguration;

@@ -24,7 +24,8 @@ const EXTENSION_IDENTIFIER = 'tsInterfaceSorter';
 export class SortInterfaceExtension {
   private defaultConfig: IInterfaceSorterConfiguration = {
     lineBetweenMembers: true,
-    indentSpace: 2
+    indentSpace: 2,
+    sortByCapitalLetterFirst: false
   };
 
   private config: IConfiguration<IInterfaceSorterConfiguration> = {
@@ -40,7 +41,8 @@ export class SortInterfaceExtension {
     const fullConfig = workspace.getConfiguration(EXTENSION_IDENTIFIER);
 
     const override = {
-      lineBetweenMembers: fullConfig.emptyLineBetweenProperties
+      lineBetweenMembers: fullConfig.emptyLineBetweenProperties,
+      sortByCapitalLetterFirst: fullConfig.sortByCapitalLetterFirst
     };
 
     this.configurator.setOverride(override);
