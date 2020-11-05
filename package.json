@@ -4,8 +4,9 @@
   "description": "Sort TypeScript interface properties",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.31.0"
+    "vscode": "^1.50.0"
   },
+  "publisher": "zhihaocui",
   "main": "./out/extension.js",
   "scripts": {
     "vscode:prepublish": "npm run compile",
