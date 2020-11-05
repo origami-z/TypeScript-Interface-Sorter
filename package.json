@@ -64,5 +64,10 @@
       }
     }
   },
-  "dependencies": {}
+  "dependencies": {},
+  "license": "MIT",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/davidcui2/TypeScript-Interface-Sorter"
+  }
 }
