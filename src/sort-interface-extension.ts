@@ -6,7 +6,7 @@ import {
   TextEditorEdit,
   Position,
   Range,
-  workspace
+  workspace,
 } from "vscode";
 
 import { ITsParser, SimpleTsParser } from "./components/parser";
@@ -15,25 +15,24 @@ import {
   IConfigurator,
   SimpleConfigurator,
   IConfiguration,
-  IInterfaceSorterConfiguration
+  IInterfaceSorterConfiguration,
 } from "./components/configurator";
 
-const EXTENSION_IDENTIFIER = 'tsInterfaceSorter';
-
+const EXTENSION_IDENTIFIER = "tsInterfaceSorter";
 
 export class SortInterfaceExtension {
   private defaultConfig: IInterfaceSorterConfiguration = {
     lineBetweenMembers: true,
     indentSpace: 2,
-    sortByCapitalLetterFirst: false
+    sortByCapitalLetterFirst: false,
   };
 
   private config: IConfiguration<IInterfaceSorterConfiguration> = {
-    default: this.defaultConfig
+    default: this.defaultConfig,
   };
-  private configurator: IConfigurator<IInterfaceSorterConfiguration> = new SimpleConfigurator(
-    this.config
-  );
+  private configurator: IConfigurator<
+    IInterfaceSorterConfiguration
+  > = new SimpleConfigurator(this.config);
   private parser: ITsParser = new SimpleTsParser();
   private sorter: ITsSorter = new SimpleTsSorter(this.configurator);
 
@@ -42,7 +41,7 @@ export class SortInterfaceExtension {
 
     const override = {
       lineBetweenMembers: fullConfig.emptyLineBetweenProperties,
-      sortByCapitalLetterFirst: fullConfig.sortByCapitalLetterFirst
+      sortByCapitalLetterFirst: fullConfig.sortByCapitalLetterFirst,
     };
 
     this.configurator.setOverride(override);
@@ -51,9 +50,14 @@ export class SortInterfaceExtension {
   public sortActiveWindowInterfaceMembers(event?: TextDocumentChangeEvent) {
     try {
       if (window.activeTextEditor) {
-        const doc: TextDocument = event ? event.document : window.activeTextEditor.document;
+        const doc: TextDocument = event
+          ? event.document
+          : window.activeTextEditor.document;
         const text = doc.getText();
-        const { nodes, sourceFile } = this.parser.parseInterface(doc.uri.fsPath, text);
+        const { nodes, sourceFile } = this.parser.parseInterface(
+          doc.uri.fsPath,
+          text
+        );
 
         if (nodes.length > 0 && sourceFile) {
           const sortedInterface = this.sorter.sortInterfaceElements(nodes);
@@ -62,7 +66,7 @@ export class SortInterfaceExtension {
             // Support sort on document save
           } else {
             window.activeTextEditor.edit((editorBuilder: TextEditorEdit) => {
-              sortedInterface.forEach(i => {
+              sortedInterface.forEach((i) => {
                 editorBuilder.replace(
                   new Range(
                     this.getPosition(i.rangeToRemove.pos, sourceFile),
@@ -72,7 +76,15 @@ export class SortInterfaceExtension {
                 );
               });
             });
+
+            window.showInformationMessage(
+              "Successfully sorted all interfaces!"
+            );
           }
+        } else {
+          window.showInformationMessage(
+            "No interface found. Please check current file."
+          );
         }
       }
     } catch (error) {
