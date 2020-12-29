@@ -7,6 +7,7 @@
     "vscode": "^1.50.0"
   },
   "publisher": "zhihaocui",
+  "icon": "images/Logo_TS.png",
   "main": "./out/extension.js",
   "scripts": {
     "vscode:prepublish": "npm run compile",
