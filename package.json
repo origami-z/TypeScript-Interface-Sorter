@@ -18,18 +18,18 @@
     "test": "node ./out/test/runTest.js",
     "test:unit": "jest"
   },
+  "dependencies": {
+    "typescript": "^4.0.2"
+  },
   "devDependencies": {
-    "@types/glob": "^7.1.3",
     "@types/jest": "^26.0.15",
     "@types/node": "^12.11.7",
     "@types/vscode": "^1.50.0",
     "@typescript-eslint/eslint-plugin": "^4.1.1",
     "@typescript-eslint/parser": "^4.1.1",
     "eslint": "^7.9.0",
-    "glob": "^7.1.6",
     "jest": "^26.6.0",
     "ts-jest": "^26.4.3",
-    "typescript": "^4.0.2",
     "vscode-test": "^1.4.0"
   },
   "categories": [
@@ -65,7 +65,6 @@
       }
     }
   },
-  "dependencies": {},
   "license": "MIT",
   "repository": {
     "type": "git",
