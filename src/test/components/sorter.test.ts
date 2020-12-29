@@ -8,7 +8,6 @@ import {
   tcPrefixExport,
   tcInterfaceWithOneProperty,
   tcInterfaceWithExtends,
-  tcInterfaceWithComment,
   tcInterfaceWithJsDocProperty
 } from "./test-cases";
 

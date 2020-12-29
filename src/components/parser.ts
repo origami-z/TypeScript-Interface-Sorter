@@ -1,7 +1,5 @@
 import * as fs from "fs";
-import * as vscode from "vscode";
 import * as ts from "typescript";
-import { IConfigurator } from "./configurator";
 
 export interface IComment {
   text: string;
