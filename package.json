@@ -39,12 +39,12 @@
     "onLanguage:javascriptreact",
     "onLanguage:typescript",
     "onLanguage:typescriptreact",
-    "onCommand:extension.sortTsInterface"
+    "onCommand:tsInterfaceSorter.sortTsInterface"
   ],
   "contributes": {
     "commands": [
       {
-        "command": "extension.sortTsInterface",
+        "command": "tsInterfaceSorter.sortTsInterface",
         "title": "TypeScript Sorter: Sort interface properties"
       }
     ],
@@ -67,7 +67,7 @@
   "dependencies": {},
   "license": "MIT",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/davidcui2/TypeScript-Interface-Sorter"
+    "type": "git",
+    "url": "https://github.com/davidcui2/TypeScript-Interface-Sorter"
   }
 }

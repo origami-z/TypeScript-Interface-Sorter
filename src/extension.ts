@@ -6,7 +6,7 @@ export function activate(context: vscode.ExtensionContext) {
   const extension = new SortInterfaceExtension();
   extension.updateFromWorkspaceConfig();
 
-  let disposable = vscode.commands.registerCommand("extension.sortTsInterface", () => {
+  let disposable = vscode.commands.registerCommand("tsInterfaceSorter.sortTsInterface", () => {
     extension.sortActiveWindowInterfaceMembers();
 
     vscode.window.showInformationMessage("Successfully sorted all interfaces!");
