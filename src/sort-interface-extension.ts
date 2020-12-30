@@ -73,11 +73,21 @@ export class SortInterfaceExtension {
               });
             });
           }
+
+          window.showInformationMessage("Successfully sorted all interfaces!");
+        } else {
+          window.showWarningMessage(
+            `No source code is found in the current active file.`
+          );
         }
+      } else {
+        window.showWarningMessage(
+          `Active text editor is needed for the command to work.`
+        );
       }
     } catch (error) {
       window.showErrorMessage(
-        `Typescript interface sorter failed with - ${error}. Please log a bug`
+        `Typescript interface sorter failed with - ${error}. Please file a bug.`
       );
     }
   }
