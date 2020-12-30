@@ -74,7 +74,7 @@ export class SortInterfaceExtension {
             });
           }
 
-          window.showInformationMessage("Successfully sorted all interfaces!");
+          window.showInformationMessage(`Successfully sorted ${sortedInterface.length} interface${sortedInterface.length > 1 ? 's' : ''}`);
         } else {
           window.showWarningMessage(
             `No source code is found in the current active file.`
