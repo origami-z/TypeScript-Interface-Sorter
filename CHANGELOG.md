@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2021-05-13
+
+### Fixed
+
+- `sortByRequiredElementFirst` setting does not do anything after updating.
+- Remove redundant sort finishing message.
+
 ## [0.2.0] - 2021-05-13
 
 ### Added

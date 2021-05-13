@@ -21,6 +21,10 @@ import {
 const EXTENSION_IDENTIFIER = "tsInterfaceSorter";
 
 export class SortInterfaceExtension {
+  /**
+   * Default configs. Don't forget to update `updateFromWorkspaceConfig` override as well.
+   * Otherwise settings change will not be taken into account.
+   */
   private defaultConfig: IInterfaceSorterConfiguration = {
     lineBetweenMembers: true,
     indentSpace: 2,
@@ -42,6 +46,7 @@ export class SortInterfaceExtension {
     const override = {
       lineBetweenMembers: fullConfig.emptyLineBetweenProperties,
       sortByCapitalLetterFirst: fullConfig.sortByCapitalLetterFirst,
+      sortByRequiredElementFirst: fullConfig.sortByRequiredElementFirst,
     };
 
     this.configurator.setOverride(override);
@@ -76,13 +81,13 @@ export class SortInterfaceExtension {
                 );
               });
             });
-
-            window.showInformationMessage(
-              "Successfully sorted all interfaces!"
-            );
           }
 
-          window.showInformationMessage(`Successfully sorted ${sortedInterface.length} interface${sortedInterface.length > 1 ? 's' : ''}`);
+          window.showInformationMessage(
+            `Successfully sorted ${sortedInterface.length} interface${
+              sortedInterface.length > 1 ? "s" : ""
+            }`
+          );
         } else {
           window.showWarningMessage(
             `No source code is found in the current active file.`
