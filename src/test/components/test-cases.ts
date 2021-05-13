@@ -52,6 +52,14 @@ interface IInterface {
 }
 `;
 
+export const tcInterfaceWithOptionalProperty = `
+interface IInterface {
+  requiredProp: string;
+
+  optionalProp?: string;
+}
+`;
+
 export const tcInterfaceWithExtends = `
 ${tcEmptyInterface}
 
@@ -59,5 +67,15 @@ interface IInterface extends IEmptyInterface {
   name: string;
 
   length: number;
+}
+`;
+
+export const tcInterfaceWithCapitalLetter = `
+interface IInterface {
+  name: string;
+
+  Length: number;
+
+  description: string;
 }
 `;
