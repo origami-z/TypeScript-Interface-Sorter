@@ -3,24 +3,30 @@ import * as ts from "typescript";
 import { ITsInterfaceNode, ITsInterfaceMemberNode } from "./parser";
 import { IConfigurator, IInterfaceSorterConfiguration } from "./configurator";
 
-export interface ISortedInterfaceElememts {
+export interface ISortedInterfaceElements {
   textToReplace: string;
   rangeToRemove: ts.TextRange;
 }
 
 export interface ITsSorter {
-  sortInterfaceElements(interfaces: ITsInterfaceNode[]): ISortedInterfaceElememts[];
+  sortInterfaceElements(
+    interfaces: ITsInterfaceNode[]
+  ): ISortedInterfaceElements[];
 }
 
 export class SimpleTsSorter implements ITsSorter {
   private configurator: IConfigurator<IInterfaceSorterConfiguration>;
 
-  public constructor(configurator: IConfigurator<IInterfaceSorterConfiguration>) {
+  public constructor(
+    configurator: IConfigurator<IInterfaceSorterConfiguration>
+  ) {
     this.configurator = configurator;
   }
 
-  public sortInterfaceElements(interfaces: ITsInterfaceNode[]): ISortedInterfaceElememts[] {
-    const sortedInterfaceElements: ISortedInterfaceElememts[] = [];
+  public sortInterfaceElements(
+    interfaces: ITsInterfaceNode[]
+  ): ISortedInterfaceElements[] {
+    const sortedInterfaceElements: ISortedInterfaceElements[] = [];
 
     for (const i in interfaces) {
       if (interfaces.hasOwnProperty(i)) {
@@ -31,14 +37,16 @@ export class SimpleTsSorter implements ITsSorter {
         }
 
         const sortedElements = oneInterface.members.sort(
-          this.configurator.getValue("sortByCapitalLetterFirst") as boolean
+          (this.configurator.getValue("sortByCapitalLetterFirst") as boolean)
             ? this.sortByNameCapitalFirst
             : this.sortByName
         );
 
         let output = "";
 
-        const SPACE = " ".repeat(this.configurator.getValue("indentSpace") as number);
+        const SPACE = " ".repeat(
+          this.configurator.getValue("indentSpace") as number
+        );
         const NEWLINE = "\n";
 
         let rangeToRemove: ts.TextRange | undefined = undefined;
@@ -46,7 +54,10 @@ export class SimpleTsSorter implements ITsSorter {
         for (let j = 0; j < sortedElements.length; j++) {
           output += NEWLINE;
 
-          if (j !== 0 && (this.configurator.getValue("lineBetweenMembers") as boolean)) {
+          if (
+            j !== 0 &&
+            (this.configurator.getValue("lineBetweenMembers") as boolean)
+          ) {
             output += NEWLINE;
           }
 
@@ -55,23 +66,36 @@ export class SimpleTsSorter implements ITsSorter {
           rangeToRemove = this.computeRemovalRange(element, rangeToRemove);
 
           const comments = element.comments;
-          if (comments && comments.leadingComment && comments.leadingComment.length > 0) {
+          if (
+            comments &&
+            comments.leadingComment &&
+            comments.leadingComment.length > 0
+          ) {
             output += SPACE;
-            output += comments.leadingComment.map(c => c.text).join(`${NEWLINE}${SPACE}`);
+            output += comments.leadingComment
+              .map((c) => c.text)
+              .join(`${NEWLINE}${SPACE}`);
             output += NEWLINE;
           }
 
           output += SPACE;
           output += element.text;
 
-          if (comments && comments.trailingComment && comments.trailingComment.length > 0) {
+          if (
+            comments &&
+            comments.trailingComment &&
+            comments.trailingComment.length > 0
+          ) {
             output += SPACE;
-            output += comments.trailingComment.map(c => c.text).join("");
+            output += comments.trailingComment.map((c) => c.text).join("");
           }
         }
 
         if (rangeToRemove) {
-          sortedInterfaceElements.push({ textToReplace: output, rangeToRemove });
+          sortedInterfaceElements.push({
+            textToReplace: output,
+            rangeToRemove,
+          });
         }
       }
     }
@@ -102,7 +126,19 @@ export class SimpleTsSorter implements ITsSorter {
     return { pos, end };
   }
 
-  private sortByNameCapitalFirst = (a: ITsInterfaceMemberNode, b: ITsInterfaceMemberNode): number => {
+  /**
+   * We want capital letter first
+   *
+   * A: string;
+   * B: string;
+   * Z: string;
+   * a: string;
+   * z: string;
+   */
+  private sortByNameCapitalFirst = (
+    a: ITsInterfaceMemberNode,
+    b: ITsInterfaceMemberNode
+  ): number => {
     const nameA = this.getStringFromName(a.element.name);
     const nameB = this.getStringFromName(b.element.name);
     if (nameA && nameB) {
@@ -122,7 +158,10 @@ export class SimpleTsSorter implements ITsSorter {
     }
   };
 
-  private sortByName = (a: ITsInterfaceMemberNode, b: ITsInterfaceMemberNode): number => {
+  private sortByName = (
+    a: ITsInterfaceMemberNode,
+    b: ITsInterfaceMemberNode
+  ): number => {
     const nameA = this.getStringFromName(a.element.name);
     const nameB = this.getStringFromName(b.element.name);
     if (nameA && nameB) {
@@ -137,7 +176,13 @@ export class SimpleTsSorter implements ITsSorter {
   };
 
   private getStringFromName = (
-    name: ts.Identifier | ts.StringLiteral | ts.NumericLiteral | ts.ComputedPropertyName | ts.PropertyName | undefined
+    name:
+      | ts.Identifier
+      | ts.StringLiteral
+      | ts.NumericLiteral
+      | ts.ComputedPropertyName
+      | ts.PropertyName
+      | undefined
   ): string | undefined => {
     if (!name) {
       return undefined;
