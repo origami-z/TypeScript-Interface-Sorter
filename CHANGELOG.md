@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2021-05-13
+
+### Added
+
+- New option to control whether required property should be sorted first: `tsInterfaceSorter.sortByRequiredElementFirst`
+
 ## [0.1.0] - 2020-12-30
 
 ### Added
