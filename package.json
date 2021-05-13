@@ -16,7 +16,10 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "test": "node ./out/test/runTest.js",
-    "test:unit": "jest"
+    "test:unit": "jest",
+    "vsce:package": "vsce package",
+    "vsce:publish": "vsce publish",
+    "vsce:publish:bump": "vsce publish patch"
   },
   "dependencies": {
     "typescript": "^4.0.2"
