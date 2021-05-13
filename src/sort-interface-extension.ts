@@ -21,18 +21,22 @@ import {
 const EXTENSION_IDENTIFIER = "tsInterfaceSorter";
 
 export class SortInterfaceExtension {
+  /**
+   * Default configs. Don't forget to update `updateFromWorkspaceConfig` override as well.
+   * Otherwise settings change will not be taken into account.
+   */
   private defaultConfig: IInterfaceSorterConfiguration = {
     lineBetweenMembers: true,
     indentSpace: 2,
     sortByCapitalLetterFirst: false,
+    sortByRequiredElementFirst: false,
   };
 
   private config: IConfiguration<IInterfaceSorterConfiguration> = {
     default: this.defaultConfig,
   };
-  private configurator: IConfigurator<
-    IInterfaceSorterConfiguration
-  > = new SimpleConfigurator(this.config);
+  private configurator: IConfigurator<IInterfaceSorterConfiguration> =
+    new SimpleConfigurator(this.config);
   private parser: ITsParser = new SimpleTsParser();
   private sorter: ITsSorter = new SimpleTsSorter(this.configurator);
 
@@ -42,6 +46,7 @@ export class SortInterfaceExtension {
     const override = {
       lineBetweenMembers: fullConfig.emptyLineBetweenProperties,
       sortByCapitalLetterFirst: fullConfig.sortByCapitalLetterFirst,
+      sortByRequiredElementFirst: fullConfig.sortByRequiredElementFirst,
     };
 
     this.configurator.setOverride(override);
@@ -76,20 +81,26 @@ export class SortInterfaceExtension {
                 );
               });
             });
-
-            window.showInformationMessage(
-              "Successfully sorted all interfaces!"
-            );
           }
-        } else {
+
           window.showInformationMessage(
-            "No interface found. Please check current file."
+            `Successfully sorted ${sortedInterface.length} interface${
+              sortedInterface.length > 1 ? "s" : ""
+            }`
+          );
+        } else {
+          window.showWarningMessage(
+            `No source code is found in the current active file.`
           );
         }
+      } else {
+        window.showWarningMessage(
+          `Active text editor is needed for the command to work.`
+        );
       }
     } catch (error) {
       window.showErrorMessage(
-        `Typescript interface sorter failed with - ${error}. Please log a bug`
+        `Typescript interface sorter failed with - ${error}. Please file a bug.`
       );
     }
   }

@@ -6,14 +6,11 @@ export function activate(context: vscode.ExtensionContext) {
     'Congratulations, your extension "tsInterfaceSorter" is now active!'
   );
   const extension = new SortInterfaceExtension();
-  extension.updateFromWorkspaceConfig();
 
-  let disposable = vscode.commands.registerCommand(
-    "tsInterfaceSorter.sortTsInterface",
-    () => {
-      const message = extension.sortActiveWindowInterfaceMembers();
-    }
-  );
+  let disposable = vscode.commands.registerCommand("tsInterfaceSorter.sortTsInterface", () => {
+    extension.updateFromWorkspaceConfig();
+    extension.sortActiveWindowInterfaceMembers();
+  });
 
   context.subscriptions.push(disposable);
 }
