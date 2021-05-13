@@ -60,6 +60,15 @@ interface IInterface {
 }
 `;
 
+export const tcInterfaceWithMultipleOptionalProperty = `
+interface IInterface {
+  requiredProp1: string;
+  optionalProp1?: string;
+  RequiredProp2: string;
+  OptionalProp2?: string;
+}
+`;
+
 export const tcInterfaceWithExtends = `
 ${tcEmptyInterface}
 

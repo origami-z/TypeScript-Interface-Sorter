@@ -25,14 +25,14 @@ export class SortInterfaceExtension {
     lineBetweenMembers: true,
     indentSpace: 2,
     sortByCapitalLetterFirst: false,
+    sortByRequiredElementFirst: false,
   };
 
   private config: IConfiguration<IInterfaceSorterConfiguration> = {
     default: this.defaultConfig,
   };
-  private configurator: IConfigurator<
-    IInterfaceSorterConfiguration
-  > = new SimpleConfigurator(this.config);
+  private configurator: IConfigurator<IInterfaceSorterConfiguration> =
+    new SimpleConfigurator(this.config);
   private parser: ITsParser = new SimpleTsParser();
   private sorter: ITsSorter = new SimpleTsSorter(this.configurator);
 

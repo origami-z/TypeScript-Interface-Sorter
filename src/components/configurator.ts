@@ -2,9 +2,11 @@ export interface IInterfaceSorterConfiguration {
   indentSpace?: number;
   lineBetweenMembers?: boolean;
   sortByCapitalLetterFirst?: boolean;
+  sortByRequiredElementFirst?: boolean;
 }
 
-export type InterfaceSorterConfigurationKeys = keyof IInterfaceSorterConfiguration;
+export type InterfaceSorterConfigurationKeys =
+  keyof IInterfaceSorterConfiguration;
 
 export interface IConfiguration<T extends { [key: string]: any }> {
   default: T;
@@ -16,7 +18,9 @@ export interface IConfigurator<T extends { [key: string]: any }> {
   getValue(key: keyof T): any;
 }
 
-export class SimpleConfigurator<T extends { [key: string]: any }> implements IConfigurator<T> {
+export class SimpleConfigurator<T extends { [key: string]: any }>
+  implements IConfigurator<T>
+{
   private config: IConfiguration<T>;
 
   public constructor(config: IConfiguration<T>) {

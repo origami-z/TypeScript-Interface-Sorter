@@ -2,7 +2,7 @@
   "name": "ts-interface-sorter",
   "displayName": "TypeScript Interface Sorter",
   "description": "Sort TypeScript interface properties",
-  "version": "0.0.4",
+  "version": "0.2.0",
   "engines": {
     "vscode": "^1.50.0"
   },
@@ -64,6 +64,11 @@
           "type": "boolean",
           "default": false,
           "description": "Controls whether properties started with capital letters should be sorted first separately before lower case ones."
+        },
+        "tsInterfaceSorter.sortByRequiredElementFirst": {
+          "type": "boolean",
+          "default": false,
+          "description": "Controls whether required property should be sorted first. If turned on, takes precedence over sortByCapitalLetterFirst option."
         }
       }
     }
@@ -71,6 +76,6 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/davidcui2/TypeScript-Interface-Sorter"
+    "url": "https://github.com/origami-z/TypeScript-Interface-Sorter"
   }
 }

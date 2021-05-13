@@ -14,6 +14,11 @@ export interface ITsSorter {
   ): ISortedInterfaceElements[];
 }
 
+export type MemberCompareFunction = (
+  a: ITsInterfaceMemberNode,
+  b: ITsInterfaceMemberNode
+) => number;
+
 export class SimpleTsSorter implements ITsSorter {
   private configurator: IConfigurator<IInterfaceSorterConfiguration>;
 
@@ -37,9 +42,10 @@ export class SimpleTsSorter implements ITsSorter {
         }
 
         const sortedElements = oneInterface.members.sort(
-          (this.configurator.getValue("sortByCapitalLetterFirst") as boolean)
-            ? this.sortByNameCapitalFirst
-            : this.sortByName
+          this.getSortFunction(
+            this.configurator.getValue("sortByCapitalLetterFirst") as boolean,
+            this.configurator.getValue("sortByRequiredElementFirst") as boolean
+          )
         );
 
         let output = "";
@@ -135,44 +141,82 @@ export class SimpleTsSorter implements ITsSorter {
    * a: string;
    * z: string;
    */
-  private sortByNameCapitalFirst = (
-    a: ITsInterfaceMemberNode,
-    b: ITsInterfaceMemberNode
-  ): number => {
-    const nameA = this.getStringFromName(a.element.name);
-    const nameB = this.getStringFromName(b.element.name);
-    if (nameA && nameB) {
-      if (nameA < nameB) {
-        return -1;
-      } else if (nameA > nameB) {
-        return 1;
-      } else {
-        return 0;
-      }
-    } else if (nameA) {
-      return 1;
-    } else if (nameB) {
+  private compareFnCapitalFirst = (nameA: string, nameB: string): number => {
+    if (nameA < nameB) {
       return -1;
+    } else if (nameA > nameB) {
+      return 1;
     } else {
       return 0;
     }
   };
 
-  private sortByName = (
-    a: ITsInterfaceMemberNode,
-    b: ITsInterfaceMemberNode
+  /**
+   * Locale compare
+   *
+   * a: string;
+   * A: string;
+   * B: string;
+   * z: string;
+   * Z: string;
+   */
+  private compareFnLocale = (nameA: string, nameB: string): number => {
+    return nameA.localeCompare(nameB);
+  };
+
+  /**
+   * Required first
+   *
+   * c: string;
+   *
+   * A?: string;
+   */
+  private compareFnRequiredFirst = (
+    aRequired: boolean,
+    bRequired: boolean
   ): number => {
-    const nameA = this.getStringFromName(a.element.name);
-    const nameB = this.getStringFromName(b.element.name);
-    if (nameA && nameB) {
-      return nameA.localeCompare(nameB);
-    } else if (nameA) {
-      return 1;
-    } else if (nameB) {
+    if (aRequired && !bRequired) {
       return -1;
+    } else if (!aRequired && bRequired) {
+      return 1;
     } else {
       return 0;
     }
+  };
+
+  private getSortFunction = (
+    sortCapitalFirst: boolean = false,
+    requiredFirst: boolean = false
+  ): MemberCompareFunction => {
+    return (a: ITsInterfaceMemberNode, b: ITsInterfaceMemberNode): number => {
+      const nameA = this.getStringFromName(a.element.name);
+      const nameB = this.getStringFromName(b.element.name);
+      if (nameA && nameB) {
+        if (requiredFirst) {
+          const requiredComparison = this.compareFnRequiredFirst(
+            !a.element.questionToken,
+            !b.element.questionToken
+          );
+          // If we get a difference for one optional and one required, return
+          if (requiredComparison !== 0) {
+            return requiredComparison;
+          }
+          // otherwise we run string compare below
+        }
+
+        if (sortCapitalFirst) {
+          return this.compareFnCapitalFirst(nameA, nameB);
+        } else {
+          return this.compareFnLocale(nameA, nameB);
+        }
+      } else if (nameA) {
+        return 1;
+      } else if (nameB) {
+        return -1;
+      } else {
+        return 0;
+      }
+    };
   };
 
   private getStringFromName = (

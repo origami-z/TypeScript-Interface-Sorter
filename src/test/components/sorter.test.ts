@@ -15,12 +15,15 @@ import {
   tcInterfaceWithJsDocProperty,
   tcInterfaceWithOptionalProperty,
   tcInterfaceWithCapitalLetter,
+  tcInterfaceWithMultipleOptionalProperty,
 } from "./test-cases";
 
 describe("Sorter", () => {
   const defaultConfig: IInterfaceSorterConfiguration = {
     lineBetweenMembers: true,
     indentSpace: 2,
+    sortByCapitalLetterFirst: false,
+    sortByRequiredElementFirst: false,
   };
 
   const parser = new SimpleTsParser();
@@ -118,15 +121,71 @@ describe("Sorter", () => {
     );
   });
 
-  test.skip("should sort optional first", () => {
-    const textIntput = tcInterfaceWithOptionalProperty;
-    const { nodes } = parser.parseInterface(filePath, textIntput);
-    const sorted = sorter.sortInterfaceElements(nodes);
+  describe("when sortByRequiredElementFirst = true", () => {
+    test("should sort required first", () => {
+      const sorter2 = new SimpleTsSorter(
+        new SimpleConfigurator({
+          default: {
+            ...defaultConfig,
+            sortByCapitalLetterFirst: false,
+            sortByRequiredElementFirst: true,
+          },
+        })
+      );
 
-    // expect(sorted.length).toBe(1);
-    // expect(sorted[0].rangeToRemove).toEqual({ pos: 23, end: 143 });
-    // expect(sorted[0].textToReplace).toEqual(
-    //   textIntput.substring(93, 143) + "\n" + textIntput.substring(23, 92)
-    // );
+      const textIntput = tcInterfaceWithOptionalProperty;
+      const { nodes } = parser.parseInterface(filePath, textIntput);
+      const sorted = sorter2.sortInterfaceElements(nodes);
+
+      expect(sorted.length).toBe(1);
+      expect(sorted[0].rangeToRemove).toEqual({ pos: 23, end: 73 });
+      expect(sorted[0].textToReplace).toEqual(
+        "\n  requiredProp: string;\n\n  optionalProp?: string;"
+      );
+    });
+
+    test("should sort required first then sort by names", () => {
+      const sorter2 = new SimpleTsSorter(
+        new SimpleConfigurator({
+          default: {
+            ...defaultConfig,
+            sortByCapitalLetterFirst: false,
+            sortByRequiredElementFirst: true,
+          },
+        })
+      );
+
+      const textIntput = tcInterfaceWithMultipleOptionalProperty;
+      const { nodes } = parser.parseInterface(filePath, textIntput);
+      const sorted = sorter2.sortInterfaceElements(nodes);
+
+      expect(sorted.length).toBe(1);
+      expect(sorted[0].rangeToRemove).toEqual({ pos: 23, end: 125 });
+      expect(sorted[0].textToReplace).toEqual(
+        "\n  requiredProp1: string;\n\n  RequiredProp2: string;\n\n  optionalProp1?: string;\n\n  OptionalProp2?: string;"
+      );
+    });
+
+    test("should sort required first then sort by names with capital letter first", () => {
+      const sorter2 = new SimpleTsSorter(
+        new SimpleConfigurator({
+          default: {
+            ...defaultConfig,
+            sortByCapitalLetterFirst: true,
+            sortByRequiredElementFirst: true,
+          },
+        })
+      );
+
+      const textIntput = tcInterfaceWithMultipleOptionalProperty;
+      const { nodes } = parser.parseInterface(filePath, textIntput);
+      const sorted = sorter2.sortInterfaceElements(nodes);
+
+      expect(sorted.length).toBe(1);
+      expect(sorted[0].rangeToRemove).toEqual({ pos: 23, end: 125 });
+      expect(sorted[0].textToReplace).toEqual(
+        "\n  RequiredProp2: string;\n\n  requiredProp1: string;\n\n  OptionalProp2?: string;\n\n  optionalProp1?: string;"
+      );
+    });
   });
 });
