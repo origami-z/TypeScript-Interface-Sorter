@@ -23,6 +23,15 @@ export interface ITsInterfaceNode extends ITsNode {
   members: Array<ITsInterfaceMemberNode>;
 }
 
+export interface ITsImportNode extends ITsNode {
+  [key: string]: any;
+}
+
+export interface ITsParsedResult {
+  interfaces: ITsInterfaceNode[];
+  imports: ITsImportNode[];
+}
+
 export interface ITsInterfaceMemberNode extends ITsNode {
   element: ts.TypeElement;
   text: string;
@@ -33,6 +42,10 @@ export interface ITsParser {
     fullFilePath: string,
     sourceFileText?: string
   ): { nodes: ITsInterfaceNode[]; sourceFile: ts.SourceFile | null };
+  parseImports(
+    fullFilePath: string,
+    sourceFileText?: string
+  ): { nodes: ITsImportNode[]; sourceFile: ts.SourceFile | null };
 }
 
 export class SimpleTsParser implements ITsParser {
@@ -51,6 +64,21 @@ export class SimpleTsParser implements ITsParser {
     return { nodes: interfaces, sourceFile };
   }
 
+  public parseImports(
+    fullFilePath: string,
+    _sourceText?: string | undefined
+  ): { nodes: ITsImportNode[]; sourceFile: ts.SourceFile | null } {
+    if (_sourceText !== null && _sourceText !== undefined && _sourceText.trim() === "") {
+      return { nodes: [], sourceFile: null };
+    }
+
+    const sourceText = _sourceText || fs.readFileSync(fullFilePath).toString();
+    const sourceFile = this.createSourceFile(fullFilePath, sourceText);
+    const { imports } = this.delintFile(sourceFile, sourceText);
+
+    return { nodes: imports, sourceFile };
+  }
+
   private createSourceFile(fullFilePath: string, sourceText: string): ts.SourceFile {
     return ts.createSourceFile(fullFilePath, sourceText, ts.ScriptTarget.ES2016, false);
   }
@@ -58,41 +86,62 @@ export class SimpleTsParser implements ITsParser {
   private delintFile(
     sourceFile: ts.SourceFile,
     sourceText?: string
-  ): { interfaces: ITsInterfaceNode[] } {
+  ): ITsParsedResult {
     const sourceFileText = sourceText || sourceFile.getText();
+    const result: ITsParsedResult = {
+      interfaces: [],
+      imports: []
+    };
 
-    return { interfaces: this.delintInterfaces(sourceFile, sourceFile, sourceFileText) };
+    this.delintTsSourceFile(sourceFile, sourceFile, sourceFileText, result);
+
+    return result;
   }
 
-  private delintInterfaces(
+  private delintTsSourceFile(
     node: ts.Node,
     sourceFile: ts.SourceFile,
-    sourceFileText: string
-  ): ITsInterfaceNode[] {
-    const interfaceNodes: ITsInterfaceNode[] = [];
-
+    sourceFileText: string,
+    result: ITsParsedResult
+  ) {
     switch (node.kind) {
       case ts.SyntaxKind.InterfaceDeclaration:
         const interfaceNode = node as ts.InterfaceDeclaration;
-        const lines = this.getCodeLineNumbers(node, sourceFile);
+        const interfaceLines = this.getCodeLineNumbers(node, sourceFile);
         const delintedInterface: ITsInterfaceNode = {
           declaration: interfaceNode,
-          start: lines.start,
-          end: lines.end,
           comments: this.getComments(node, sourceFileText),
-          members: this.delintInterfaceElements(interfaceNode, sourceFile, sourceFileText)
+          members: this.delintInterfaceElements(interfaceNode, sourceFile, sourceFileText),
+          ...interfaceLines
         };
-        interfaceNodes.push(delintedInterface);
+        result.interfaces.push(delintedInterface);
+        break;
+      case ts.SyntaxKind.ImportDeclaration:
+        const importDeclarationNode = node as ts.ImportDeclaration;
+        const importLines = this.getCodeLineNumbers(node, sourceFile);
+        const delintedImport: ITsImportNode = {
+          declaration: importDeclarationNode,
+          comments: this.getComments(node, sourceFileText),
+          moduleSpecifierText: importDeclarationNode.moduleSpecifier.getText(sourceFile),
+          /**
+           * importClause
+           *  - name: kind, range, getText(),
+           *  - namedBindings
+           *    |- elements: NodeObject[]
+           *       |- kind, name (IdentifierObject), range
+           * */
+          importClause: importDeclarationNode.importClause,
+          ...importLines
+        };
+        result.imports.push(delintedImport);
         break;
       default:
         break;
     }
 
     ts.forEachChild(node, node => {
-      interfaceNodes.push(...this.delintInterfaces(node, sourceFile, sourceFileText));
+      this.delintTsSourceFile(node, sourceFile, sourceFileText, result);
     });
-
-    return interfaceNodes;
   }
 
   private getComments(node: ts.Node, sourceFileText: string): IComments {

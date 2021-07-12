@@ -12,6 +12,9 @@ export interface ITsSorter {
   sortInterfaceElements(
     interfaces: ITsInterfaceNode[]
   ): ISortedInterfaceElements[];
+  // sortImportStatements(
+
+  // )
 }
 
 export type MemberCompareFunction = (

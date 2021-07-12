@@ -88,3 +88,7 @@ interface IInterface {
   description: string;
 }
 `;
+
+export const tcImportsReact = `
+import React, { useState, useEffect } from 'react';
+`;

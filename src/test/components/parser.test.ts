@@ -6,7 +6,8 @@ import {
   tcPrefixExport,
   tcInterfaceWithOneProperty,
   tcInterfaceWithExtends,
-  tcInterfaceWithComment
+  tcInterfaceWithComment,
+  tcImportsReact
 } from "./test-cases";
 
 describe("Parser", () => {
@@ -15,7 +16,7 @@ describe("Parser", () => {
   describe("parse number of interface", () => {
     test("should parse no interface", () => {
       const { nodes } = parser.parseInterface(filePath, tcClassImplementInterface);
-      
+
       expect(nodes.length).toBe(0);
     });
 
@@ -40,6 +41,10 @@ describe("Parser", () => {
     test("should parse one interface with comments", () => {
       const { nodes } = parser.parseInterface(filePath, tcInterfaceWithComment);
       expect(nodes.length).toBe(1);
+    });
+
+    test("should parse imports from react", () => {
+      parser.parseImports(filePath, tcImportsReact);
     });
   });
 });
