@@ -24,6 +24,10 @@ export interface ITsInterfaceNode extends ITsNode {
 }
 
 export interface ITsImportNode extends ITsNode {
+  declaration: ts.ImportDeclaration;
+  moduleSpecifierText: string;
+  importClause: ts.ImportClause | undefined;
+  /** TODO: to be removed when all properties are added above */
   [key: string]: any;
 }
 
@@ -134,10 +138,13 @@ export class SimpleTsParser implements ITsParser {
           ...importLines
         };
         result.imports.push(delintedImport);
-        break;
+        // When Declaration is found, no need to delint further
+        return;
       default:
         break;
     }
+
+
 
     ts.forEachChild(node, node => {
       this.delintTsSourceFile(node, sourceFile, sourceFileText, result);

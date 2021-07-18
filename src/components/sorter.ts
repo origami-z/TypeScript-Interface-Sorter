@@ -1,9 +1,9 @@
 import * as ts from "typescript";
 
-import { ITsInterfaceNode, ITsInterfaceMemberNode } from "./parser";
+import { ITsInterfaceNode, ITsInterfaceMemberNode, ITsImportNode } from "./parser";
 import { IConfigurator, IInterfaceSorterConfiguration } from "./configurator";
 
-export interface ISortedInterfaceElements {
+export interface ISortedElements {
   textToReplace: string;
   rangeToRemove: ts.TextRange;
 }
@@ -11,13 +11,14 @@ export interface ISortedInterfaceElements {
 export interface ITsSorter {
   sortInterfaceElements(
     interfaces: ITsInterfaceNode[]
-  ): ISortedInterfaceElements[];
-  // sortImportStatements(
+  ): ISortedElements[];
 
-  // )
+  sortImportStatements(
+    imports: ITsImportNode[]
+  ): ISortedElements[];
 }
 
-export type MemberCompareFunction = (
+export type InterfaceMemberCompareFunction = (
   a: ITsInterfaceMemberNode,
   b: ITsInterfaceMemberNode
 ) => number;
@@ -33,8 +34,8 @@ export class SimpleTsSorter implements ITsSorter {
 
   public sortInterfaceElements(
     interfaces: ITsInterfaceNode[]
-  ): ISortedInterfaceElements[] {
-    const sortedInterfaceElements: ISortedInterfaceElements[] = [];
+  ): ISortedElements[] {
+    const sortedInterfaceElements: ISortedElements[] = [];
 
     for (const i in interfaces) {
       if (interfaces.hasOwnProperty(i)) {
@@ -112,6 +113,23 @@ export class SimpleTsSorter implements ITsSorter {
     return sortedInterfaceElements;
   }
 
+  public sortImportStatements(
+    imports: ITsImportNode[]
+  ): ISortedElements[] {
+    const sortedImportElements: ISortedElements[] = [];
+
+    // for (const importElement of imports) {
+    //   console.log(importElement.moduleSpecifierText);
+    // }
+    console.log(imports.map(x => x.moduleSpecifierText));
+    console.log("===>");
+
+    const sortedImports = imports.sort(this.compareImportFn);
+    console.log(sortedImports.map(x => x.moduleSpecifierText));
+
+    return sortedImportElements;
+  }
+
   private computeRemovalRange(
     element: ITsInterfaceMemberNode,
     rangeToRemove: ts.TextRange | undefined
@@ -136,6 +154,72 @@ export class SimpleTsSorter implements ITsSorter {
   }
 
   /**
+   * In order of
+   * - Global modeles, e.g. 'react', 'classnames'
+   * - Local modules
+   *   - Further away ones, i.e. start with '..'
+   *   - Closer ones, i.e. start with './'
+   * - CSS files. e.g. './my-component.css' 
+   */
+  private compareImportFn = (a: ITsImportNode, b: ITsImportNode): number => {
+    const nameA = this.trimQuoation(a.moduleSpecifierText);
+    const nameB = this.trimQuoation(b.moduleSpecifierText);
+
+    if (this.isCss(nameA)) {
+      if (this.isCss(nameB)) {
+        return this.compareImportGlobalWithLocal(nameA, nameB);
+      }
+      else {
+        return 1;
+      }
+    } else {
+      if (this.isCss(nameB)) {
+        return -1;
+      } else {
+        return this.compareImportGlobalWithLocal(nameA, nameB);
+      }
+    }
+  };
+
+  /**
+   * 
+   * Both params should not contain quoation!
+   */
+  private compareImportGlobalWithLocal = (a: string, b: string): number => {
+    if (this.isGlobalModule(a)) {
+      if (this.isGlobalModule(b)) {
+        console.log({ a, b, compare: 'both local' });
+        return a.localeCompare(b);
+      }
+      else {
+        return -1;
+      }
+    } else {
+      if (this.isGlobalModule(b)) {
+        return 1;
+      }
+      else {
+        // '..' will be sorted first compared to './'
+        return a.localeCompare(b);
+      }
+    }
+  };
+
+  private trimQuoation = (input: string): string => {
+    return input.replace(/['"]+/g, '');
+  };
+
+  /** Whether input ends with '.css' */
+  private isCss = (input: string): boolean => {
+    return input.toLowerCase().endsWith('css');
+  };
+
+  /** Whether input does not start with '.' */
+  private isGlobalModule = (input: string): boolean => {
+    return !input.startsWith('.');
+  };
+
+  /**
    * We want capital letter first
    *
    * A: string;
@@ -144,7 +228,7 @@ export class SimpleTsSorter implements ITsSorter {
    * a: string;
    * z: string;
    */
-  private compareFnCapitalFirst = (nameA: string, nameB: string): number => {
+  private compareInterfaceFnCapitalFirst = (nameA: string, nameB: string): number => {
     if (nameA < nameB) {
       return -1;
     } else if (nameA > nameB) {
@@ -163,7 +247,7 @@ export class SimpleTsSorter implements ITsSorter {
    * z: string;
    * Z: string;
    */
-  private compareFnLocale = (nameA: string, nameB: string): number => {
+  private compareInterfaceFnLocale = (nameA: string, nameB: string): number => {
     return nameA.localeCompare(nameB);
   };
 
@@ -174,7 +258,7 @@ export class SimpleTsSorter implements ITsSorter {
    *
    * A?: string;
    */
-  private compareFnRequiredFirst = (
+  private compareInterfaceFnRequiredFirst = (
     aRequired: boolean,
     bRequired: boolean
   ): number => {
@@ -190,13 +274,13 @@ export class SimpleTsSorter implements ITsSorter {
   private getSortFunction = (
     sortCapitalFirst: boolean = false,
     requiredFirst: boolean = false
-  ): MemberCompareFunction => {
+  ): InterfaceMemberCompareFunction => {
     return (a: ITsInterfaceMemberNode, b: ITsInterfaceMemberNode): number => {
       const nameA = this.getStringFromName(a.element.name);
       const nameB = this.getStringFromName(b.element.name);
       if (nameA && nameB) {
         if (requiredFirst) {
-          const requiredComparison = this.compareFnRequiredFirst(
+          const requiredComparison = this.compareInterfaceFnRequiredFirst(
             !a.element.questionToken,
             !b.element.questionToken
           );
@@ -208,9 +292,9 @@ export class SimpleTsSorter implements ITsSorter {
         }
 
         if (sortCapitalFirst) {
-          return this.compareFnCapitalFirst(nameA, nameB);
+          return this.compareInterfaceFnCapitalFirst(nameA, nameB);
         } else {
-          return this.compareFnLocale(nameA, nameB);
+          return this.compareInterfaceFnLocale(nameA, nameB);
         }
       } else if (nameA) {
         return 1;

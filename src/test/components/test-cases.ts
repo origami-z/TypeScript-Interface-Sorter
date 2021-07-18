@@ -92,3 +92,22 @@ interface IInterface {
 export const tcImportsReact = `
 import React, { useState, useEffect } from 'react';
 `;
+
+export const tcImportsTwoLocalComponents = `
+import { ComponentB } from './components/b';
+import { LibA } from '../lib/a';
+`;
+
+export const tcImportsPlainCss = `
+import 'foo.css';
+`;
+
+export const tcImportsCssModule = `
+import * as styles from 'foo.css';
+`;
+
+export const tcImportsCommon1 = `
+${tcImportsTwoLocalComponents}
+${tcImportsReact}
+${tcImportsPlainCss}
+`;

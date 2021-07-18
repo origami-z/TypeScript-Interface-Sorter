@@ -35,14 +35,25 @@
       "disableOptimisticBPs": true,
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "npm",
+      "args": ["run", "test:unit", "--", "--runInBand"]
+    },
+    {
+      "type": "node",
+      "name": "debug-single-test",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true,
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "npm",
       "args": [
         "run",
         "test:unit",
         "--",
         "--runInBand",
-        "src/test/components/parser.test.ts",
+        "src/test/components/sorter.import.test.ts",
         "-t",
-        "should parse imports from react"
+        "sort"
       ]
     }
   ]

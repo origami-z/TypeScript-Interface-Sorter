@@ -7,7 +7,9 @@ import {
   tcInterfaceWithOneProperty,
   tcInterfaceWithExtends,
   tcInterfaceWithComment,
-  tcImportsReact
+  tcImportsReact,
+  tcImportsPlainCss,
+  tcImportsCssModule
 } from "./test-cases";
 
 describe("Parser", () => {
@@ -42,9 +44,27 @@ describe("Parser", () => {
       const { nodes } = parser.parseInterface(filePath, tcInterfaceWithComment);
       expect(nodes.length).toBe(1);
     });
+  });
+
+  describe("parse import declaration", () => {
 
     test("should parse imports from react", () => {
-      parser.parseImports(filePath, tcImportsReact);
+      const { nodes } = parser.parseImports(filePath, tcImportsReact);
+      expect(nodes.length).toBe(1);
+      expect(nodes[0].moduleSpecifierText).toEqual('\'react\'');
     });
+
+    test("should parse imports from plain css", () => {
+      const { nodes } = parser.parseImports(filePath, tcImportsPlainCss);
+      expect(nodes.length).toBe(1);
+    });
+
+    test("should parse imports from css module", () => {
+      const { nodes } = parser.parseImports(filePath, tcImportsCssModule);
+      expect(nodes.length).toBe(1);
+    });
+
+
+
   });
 });

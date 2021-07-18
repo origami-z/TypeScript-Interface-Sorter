@@ -18,7 +18,7 @@ import {
   tcInterfaceWithMultipleOptionalProperty,
 } from "./test-cases";
 
-describe("Sorter", () => {
+describe("Interface Sorter", () => {
   const defaultConfig: IInterfaceSorterConfiguration = {
     lineBetweenMembers: true,
     indentSpace: 2,
