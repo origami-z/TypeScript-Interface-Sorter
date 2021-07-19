@@ -107,7 +107,9 @@ import * as styles from 'foo.css';
 `;
 
 export const tcImportsCommon1 = `
+${constJsDocComments}
 ${tcImportsTwoLocalComponents}
 ${tcImportsReact}
+${constJsDocComments}
 ${tcImportsPlainCss}
 `;

@@ -1,3 +1,5 @@
+import * as ts from "typescript";
+
 import { IInterfaceSorterConfiguration, SimpleConfigurator } from "../../components/configurator";
 import { SimpleTsParser } from "../../components/parser";
 import { SimpleTsSorter } from "../../components/sorter";
@@ -20,11 +22,11 @@ describe("Import Sorter", () => {
   const filePath = "Untitled-1";
 
   test("should sort global package first", () => {
-    const { nodes } = parser.parseImports(
+    const { nodes, sourceFile } = parser.parseImports(
       filePath,
       tcImportsCommon1
     );
-    const sorted = sorter.sortImportStatements(nodes);
+    const sorted = sorter.sortImportStatements(nodes, sourceFile!);
 
     // FIXME: Test is not written yet
     expect(sorted.length).toBe(0);

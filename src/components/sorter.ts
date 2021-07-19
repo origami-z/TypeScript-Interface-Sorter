@@ -2,6 +2,7 @@ import * as ts from "typescript";
 
 import { ITsInterfaceNode, ITsInterfaceMemberNode, ITsImportNode } from "./parser";
 import { IConfigurator, IInterfaceSorterConfiguration } from "./configurator";
+import { isCss, isGlobalModule, trimQuoation } from "./util";
 
 export interface ISortedElements {
   textToReplace: string;
@@ -14,7 +15,8 @@ export interface ITsSorter {
   ): ISortedElements[];
 
   sortImportStatements(
-    imports: ITsImportNode[]
+    imports: ITsImportNode[],
+    source: ts.SourceFile
   ): ISortedElements[];
 }
 
@@ -73,7 +75,7 @@ export class SimpleTsSorter implements ITsSorter {
 
           const element = sortedElements[j];
 
-          rangeToRemove = this.computeRemovalRange(element, rangeToRemove);
+          rangeToRemove = this.computeRemovalRange(element.element, rangeToRemove);
 
           const comments = element.comments;
           if (
@@ -114,7 +116,8 @@ export class SimpleTsSorter implements ITsSorter {
   }
 
   public sortImportStatements(
-    imports: ITsImportNode[]
+    imports: ITsImportNode[],
+    source: ts.SourceFile
   ): ISortedElements[] {
     const sortedImportElements: ISortedElements[] = [];
 
@@ -127,14 +130,26 @@ export class SimpleTsSorter implements ITsSorter {
     const sortedImports = imports.sort(this.compareImportFn);
     console.log(sortedImports.map(x => x.moduleSpecifierText));
 
+    let rangeToRemove: ts.TextRange | undefined = undefined;
+
+    for (const singleImport of sortedImports) {
+
+      rangeToRemove = this.computeRemovalRange(singleImport.declaration, rangeToRemove);
+
+      // `getFullText` includes comment
+      // `trim` trims line break so we apply our own logic to add linebreak base on grouping of types
+      console.log(singleImport.declaration.getFullText(source).trim());
+      console.log({ type: singleImport.type });
+    }
+
     return sortedImportElements;
   }
 
   private computeRemovalRange(
-    element: ITsInterfaceMemberNode,
+    node: ts.Node,
     rangeToRemove: ts.TextRange | undefined
   ): ts.TextRange | undefined {
-    const node = element.element;
+    // const node = element.element;
 
     if (rangeToRemove === undefined) {
       return { pos: node.pos, end: node.end };
@@ -162,18 +177,18 @@ export class SimpleTsSorter implements ITsSorter {
    * - CSS files. e.g. './my-component.css' 
    */
   private compareImportFn = (a: ITsImportNode, b: ITsImportNode): number => {
-    const nameA = this.trimQuoation(a.moduleSpecifierText);
-    const nameB = this.trimQuoation(b.moduleSpecifierText);
+    const nameA = trimQuoation(a.moduleSpecifierText);
+    const nameB = trimQuoation(b.moduleSpecifierText);
 
-    if (this.isCss(nameA)) {
-      if (this.isCss(nameB)) {
+    if (isCss(nameA)) {
+      if (isCss(nameB)) {
         return this.compareImportGlobalWithLocal(nameA, nameB);
       }
       else {
         return 1;
       }
     } else {
-      if (this.isCss(nameB)) {
+      if (isCss(nameB)) {
         return -1;
       } else {
         return this.compareImportGlobalWithLocal(nameA, nameB);
@@ -186,8 +201,8 @@ export class SimpleTsSorter implements ITsSorter {
    * Both params should not contain quoation!
    */
   private compareImportGlobalWithLocal = (a: string, b: string): number => {
-    if (this.isGlobalModule(a)) {
-      if (this.isGlobalModule(b)) {
+    if (isGlobalModule(a)) {
+      if (isGlobalModule(b)) {
         console.log({ a, b, compare: 'both local' });
         return a.localeCompare(b);
       }
@@ -195,7 +210,7 @@ export class SimpleTsSorter implements ITsSorter {
         return -1;
       }
     } else {
-      if (this.isGlobalModule(b)) {
+      if (isGlobalModule(b)) {
         return 1;
       }
       else {
@@ -203,20 +218,6 @@ export class SimpleTsSorter implements ITsSorter {
         return a.localeCompare(b);
       }
     }
-  };
-
-  private trimQuoation = (input: string): string => {
-    return input.replace(/['"]+/g, '');
-  };
-
-  /** Whether input ends with '.css' */
-  private isCss = (input: string): boolean => {
-    return input.toLowerCase().endsWith('css');
-  };
-
-  /** Whether input does not start with '.' */
-  private isGlobalModule = (input: string): boolean => {
-    return !input.startsWith('.');
   };
 
   /**

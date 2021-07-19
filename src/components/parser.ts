@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as ts from "typescript";
+import { isCss, isGlobalModule, trimQuoation } from "./util";
 
 export interface IComment {
   text: string;
@@ -23,10 +24,18 @@ export interface ITsInterfaceNode extends ITsNode {
   members: Array<ITsInterfaceMemberNode>;
 }
 
+// css & global = 101
+export enum TsImportType {
+  relative = 0,
+  global = 1,
+  css = 4, // 100
+}
+
 export interface ITsImportNode extends ITsNode {
   declaration: ts.ImportDeclaration;
   moduleSpecifierText: string;
   importClause: ts.ImportClause | undefined;
+  type: TsImportType;
   /** TODO: to be removed when all properties are added above */
   [key: string]: any;
 }
@@ -123,10 +132,12 @@ export class SimpleTsParser implements ITsParser {
       case ts.SyntaxKind.ImportDeclaration:
         const importDeclarationNode = node as ts.ImportDeclaration;
         const importLines = this.getCodeLineNumbers(node, sourceFile);
+        const specifierText = importDeclarationNode.moduleSpecifier.getText(sourceFile);
         const delintedImport: ITsImportNode = {
           declaration: importDeclarationNode,
           comments: this.getComments(node, sourceFileText),
-          moduleSpecifierText: importDeclarationNode.moduleSpecifier.getText(sourceFile),
+          moduleSpecifierText: specifierText,
+          type: this.getTsImportType(specifierText),
           /**
            * importClause
            *  - name: kind, range, getText(),
@@ -149,6 +160,13 @@ export class SimpleTsParser implements ITsParser {
     ts.forEachChild(node, node => {
       this.delintTsSourceFile(node, sourceFile, sourceFileText, result);
     });
+  }
+
+  private getTsImportType(specifierText: string): TsImportType {
+    const libName = trimQuoation(specifierText);
+    const isGlobal = isGlobalModule(libName) ? 1 : 0;
+    const isCssFile = isCss(libName) ? 1 : 0;
+    return isGlobal * TsImportType.global + isCssFile * TsImportType.css;
   }
 
   private getComments(node: ts.Node, sourceFileText: string): IComments {
