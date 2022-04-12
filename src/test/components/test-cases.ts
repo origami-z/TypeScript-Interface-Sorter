@@ -52,6 +52,18 @@ interface IInterface {
 }
 `;
 
+export const tcTypeWithJsDocProperty = `
+type CustomType {
+  /**
+   * Some jsDoc to describe the property
+   */
+  name: string;
+
+  /** One liner of the jsDoc */
+  length: number;
+}
+`;
+
 export const tcInterfaceWithOptionalProperty = `
 interface IInterface {
   requiredProp: string;

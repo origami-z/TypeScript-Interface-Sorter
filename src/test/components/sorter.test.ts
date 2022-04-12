@@ -34,28 +34,28 @@ describe("Sorter", () => {
   const filePath = "Untitled-1";
 
   test("should not break with no interface", () => {
-    const { nodes } = parser.parseInterface(
+    const { nodes } = parser.parseTypeNodes(
       filePath,
       tcClassImplementInterface
     );
-    const sorted = sorter.sortInterfaceElements(nodes);
+    const sorted = sorter.sortGenericTypeElements(nodes);
 
     expect(sorted.length).toBe(0);
   });
 
   test("should not sort with empty interface", () => {
-    const { nodes } = parser.parseInterface(filePath, tcEmptyInterface);
-    const sorted = sorter.sortInterfaceElements(nodes);
+    const { nodes } = parser.parseTypeNodes(filePath, tcEmptyInterface);
+    const sorted = sorter.sortGenericTypeElements(nodes);
 
     expect(sorted.length).toBe(0);
   });
 
   test("should sort one interface with export prefix", () => {
-    const { nodes } = parser.parseInterface(
+    const { nodes } = parser.parseTypeNodes(
       filePath,
       tcPrefixExport + tcInterfaceWithOneProperty
     );
-    const sorted = sorter.sortInterfaceElements(nodes);
+    const sorted = sorter.sortGenericTypeElements(nodes);
 
     expect(sorted.length).toBe(1);
     expect(sorted[0].rangeToRemove).toEqual({ pos: 30, end: 46 });
@@ -63,8 +63,8 @@ describe("Sorter", () => {
 
   test("should sort two interfaces with one extends the other", () => {
     const textIntput = tcInterfaceWithExtends;
-    const { nodes } = parser.parseInterface(filePath, textIntput);
-    const sorted = sorter.sortInterfaceElements(nodes);
+    const { nodes } = parser.parseTypeNodes(filePath, textIntput);
+    const sorted = sorter.sortGenericTypeElements(nodes);
 
     expect(sorted.length).toBe(1);
     expect(sorted[0].rangeToRemove).toEqual({ pos: 75, end: 110 });
@@ -75,8 +75,8 @@ describe("Sorter", () => {
 
   test("should sort one interface with comments", () => {
     const textIntput = tcInterfaceWithJsDocProperty;
-    const { nodes } = parser.parseInterface(filePath, textIntput);
-    const sorted = sorter.sortInterfaceElements(nodes);
+    const { nodes } = parser.parseTypeNodes(filePath, textIntput);
+    const sorted = sorter.sortGenericTypeElements(nodes);
 
     expect(sorted.length).toBe(1);
     expect(sorted[0].rangeToRemove).toEqual({ pos: 23, end: 143 });
@@ -93,8 +93,8 @@ describe("Sorter", () => {
     );
 
     const textIntput = tcInterfaceWithCapitalLetter;
-    const { nodes } = parser.parseInterface(filePath, textIntput);
-    const sorted = sorter2.sortInterfaceElements(nodes);
+    const { nodes } = parser.parseTypeNodes(filePath, textIntput);
+    const sorted = sorter2.sortGenericTypeElements(nodes);
 
     expect(sorted.length).toBe(1);
     expect(sorted[0].rangeToRemove).toEqual({ pos: 23, end: 82 });
@@ -111,8 +111,8 @@ describe("Sorter", () => {
     );
 
     const textIntput = tcInterfaceWithCapitalLetter;
-    const { nodes } = parser.parseInterface(filePath, textIntput);
-    const sorted = sorter2.sortInterfaceElements(nodes);
+    const { nodes } = parser.parseTypeNodes(filePath, textIntput);
+    const sorted = sorter2.sortGenericTypeElements(nodes);
 
     expect(sorted.length).toBe(1);
     expect(sorted[0].rangeToRemove).toEqual({ pos: 23, end: 82 });
@@ -134,8 +134,8 @@ describe("Sorter", () => {
       );
 
       const textIntput = tcInterfaceWithOptionalProperty;
-      const { nodes } = parser.parseInterface(filePath, textIntput);
-      const sorted = sorter2.sortInterfaceElements(nodes);
+      const { nodes } = parser.parseTypeNodes(filePath, textIntput);
+      const sorted = sorter2.sortGenericTypeElements(nodes);
 
       expect(sorted.length).toBe(1);
       expect(sorted[0].rangeToRemove).toEqual({ pos: 23, end: 73 });
@@ -156,8 +156,8 @@ describe("Sorter", () => {
       );
 
       const textIntput = tcInterfaceWithMultipleOptionalProperty;
-      const { nodes } = parser.parseInterface(filePath, textIntput);
-      const sorted = sorter2.sortInterfaceElements(nodes);
+      const { nodes } = parser.parseTypeNodes(filePath, textIntput);
+      const sorted = sorter2.sortGenericTypeElements(nodes);
 
       expect(sorted.length).toBe(1);
       expect(sorted[0].rangeToRemove).toEqual({ pos: 23, end: 125 });
@@ -178,8 +178,8 @@ describe("Sorter", () => {
       );
 
       const textIntput = tcInterfaceWithMultipleOptionalProperty;
-      const { nodes } = parser.parseInterface(filePath, textIntput);
-      const sorted = sorter2.sortInterfaceElements(nodes);
+      const { nodes } = parser.parseTypeNodes(filePath, textIntput);
+      const sorted = sorter2.sortGenericTypeElements(nodes);
 
       expect(sorted.length).toBe(1);
       expect(sorted[0].rangeToRemove).toEqual({ pos: 23, end: 125 });

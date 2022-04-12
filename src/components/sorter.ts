@@ -1,9 +1,9 @@
 import * as ts from "typescript";
 
-import { ITsInterfaceNode, ITsInterfaceMemberNode } from "./parser";
+import { ITsInterfaceNode, ITsTypeMemberNode, ITypeNode } from "./parser";
 import { IConfigurator, IInterfaceSorterConfiguration } from "./configurator";
 
-export interface ISortedInterfaceElements {
+export interface ISortedMemberElements {
   textToReplace: string;
   rangeToRemove: ts.TextRange;
 }
@@ -11,12 +11,15 @@ export interface ISortedInterfaceElements {
 export interface ITsSorter {
   sortInterfaceElements(
     interfaces: ITsInterfaceNode[]
-  ): ISortedInterfaceElements[];
+  ): ISortedMemberElements[];
+  sortGenericTypeElements(
+    typeNodes: ITypeNode[]
+  ): ISortedMemberElements[];
 }
 
 export type MemberCompareFunction = (
-  a: ITsInterfaceMemberNode,
-  b: ITsInterfaceMemberNode
+  a: ITsTypeMemberNode,
+  b: ITsTypeMemberNode
 ) => number;
 
 export class SimpleTsSorter implements ITsSorter {
@@ -30,8 +33,8 @@ export class SimpleTsSorter implements ITsSorter {
 
   public sortInterfaceElements(
     interfaces: ITsInterfaceNode[]
-  ): ISortedInterfaceElements[] {
-    const sortedInterfaceElements: ISortedInterfaceElements[] = [];
+  ): ISortedMemberElements[] {
+    const sortedInterfaceElements: ISortedMemberElements[] = [];
 
     for (const i in interfaces) {
       if (interfaces.hasOwnProperty(i)) {
@@ -109,8 +112,19 @@ export class SimpleTsSorter implements ITsSorter {
     return sortedInterfaceElements;
   }
 
+  public sortGenericTypeElements(typeNodes: ITypeNode[]): ISortedMemberElements[] {
+    const sortedElement = [];
+    for (let i = 0; i < typeNodes.length; i++) {
+      const typeNode = typeNodes[i];
+      if (typeNode.declaration.kind === ts.SyntaxKind.InterfaceDeclaration) {
+        sortedElement.push(...this.sortInterfaceElements([typeNode as ITsInterfaceNode]));
+      }
+    }
+    return sortedElement;
+  }
+
   private computeRemovalRange(
-    element: ITsInterfaceMemberNode,
+    element: ITsTypeMemberNode,
     rangeToRemove: ts.TextRange | undefined
   ): ts.TextRange | undefined {
     const node = element.element;
@@ -188,7 +202,7 @@ export class SimpleTsSorter implements ITsSorter {
     sortCapitalFirst: boolean = false,
     requiredFirst: boolean = false
   ): MemberCompareFunction => {
-    return (a: ITsInterfaceMemberNode, b: ITsInterfaceMemberNode): number => {
+    return (a: ITsTypeMemberNode, b: ITsTypeMemberNode): number => {
       const nameA = this.getStringFromName(a.element.name);
       const nameB = this.getStringFromName(b.element.name);
       if (nameA && nameB) {

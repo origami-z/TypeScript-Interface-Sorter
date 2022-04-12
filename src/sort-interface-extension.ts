@@ -59,13 +59,13 @@ export class SortInterfaceExtension {
           ? event.document
           : window.activeTextEditor.document;
         const text = doc.getText();
-        const { nodes, sourceFile } = this.parser.parseInterface(
+        const { nodes, sourceFile } = this.parser.parseTypeNodes(
           doc.uri.fsPath,
           text
         );
 
         if (nodes.length > 0 && sourceFile) {
-          const sortedInterface = this.sorter.sortInterfaceElements(nodes);
+          const sortedInterface = this.sorter.sortGenericTypeElements(nodes);
 
           if (event) {
             // Support sort on document save
@@ -83,9 +83,9 @@ export class SortInterfaceExtension {
             });
           }
 
+          // TODO: Update message
           window.showInformationMessage(
-            `Successfully sorted ${sortedInterface.length} interface${
-              sortedInterface.length > 1 ? "s" : ""
+            `Successfully sorted ${sortedInterface.length} interface${sortedInterface.length > 1 ? "s" : ""
             }`
           );
         } else {
