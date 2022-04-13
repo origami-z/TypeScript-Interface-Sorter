@@ -6,16 +6,16 @@ import {
 } from "../../components/configurator";
 
 import {
+  tcPrefixes,
   tcClassImplementInterface,
   tcEmptyInterface,
   tcPrefixExport,
-  tcInterfaceWithOneProperty,
   tcInterfaceWithExtends,
-  tcInterfaceWithComment,
-  tcInterfaceWithJsDocProperty,
   tcInterfaceWithOptionalProperty,
   tcInterfaceWithCapitalLetter,
   tcInterfaceWithMultipleOptionalProperty,
+  typeWithJsDocProperty,
+  typeWithOneProperty,
 } from "./test-cases";
 
 describe("Sorter", () => {
@@ -50,15 +50,18 @@ describe("Sorter", () => {
     expect(sorted.length).toBe(0);
   });
 
-  test("should sort one interface with export prefix", () => {
+  test.each([tcPrefixes])("should sort one with export prefix - %s", (prefix) => {
+    const prefixLength = prefix.length;
+    const exportLength = tcPrefixExport.length;
     const { nodes } = parser.parseTypeNodes(
       filePath,
-      tcPrefixExport + tcInterfaceWithOneProperty
+      tcPrefixExport + prefix + typeWithOneProperty
     );
     const sorted = sorter.sortGenericTypeElements(nodes);
 
     expect(sorted.length).toBe(1);
-    expect(sorted[0].rangeToRemove).toEqual({ pos: 30, end: 46 });
+    //  
+    expect(sorted[0].rangeToRemove).toEqual({ pos: prefixLength + exportLength + 1, end: prefixLength + exportLength + 17 });
   });
 
   test("should sort two interfaces with one extends the other", () => {
@@ -73,15 +76,16 @@ describe("Sorter", () => {
     );
   });
 
-  test("should sort one interface with comments", () => {
-    const textIntput = tcInterfaceWithJsDocProperty;
+  test.each(tcPrefixes)(`should sort one type with comments - %s`, (prefix) => {
+    const prefixLength = prefix.length;
+    const textIntput = prefix + typeWithJsDocProperty;
     const { nodes } = parser.parseTypeNodes(filePath, textIntput);
     const sorted = sorter.sortGenericTypeElements(nodes);
 
     expect(sorted.length).toBe(1);
-    expect(sorted[0].rangeToRemove).toEqual({ pos: 23, end: 143 });
+    expect(sorted[0].rangeToRemove).toEqual({ pos: prefixLength + 1, end: prefixLength + 121 });
     expect(sorted[0].textToReplace).toEqual(
-      textIntput.substring(93, 143) + "\n" + textIntput.substring(23, 92)
+      textIntput.substring(prefixLength + 71, prefixLength + 121) + "\n" + textIntput.substring(prefixLength + 1, prefixLength + 70)
     );
   });
 

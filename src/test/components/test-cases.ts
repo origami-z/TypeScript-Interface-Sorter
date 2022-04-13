@@ -1,11 +1,21 @@
+export const tcPrefixes = ['interface IInterface ', 'type CustomType '];
+
 export const tcEmptyInterface = `
 interface IInterface {} 
 `;
 
 export const tcPrefixExport = `export `;
 
+export const typeWithOneProperty = `{
+  name: string;
+}`;
+
 export const tcInterfaceWithOneProperty = `
-interface IInterface {
+interface IInterface 
+`;
+
+export const tcTypeWithOneProperty = `
+type CustomType {
   name: string;
 }
 `;
@@ -40,20 +50,11 @@ export const tcInterfaceWithComment = `
 ${constJsDocComments}
 ${tcInterfaceWithOneProperty}`;
 
-export const tcInterfaceWithJsDocProperty = `
-interface IInterface {
-  /**
-   * Some jsDoc to describe the property
-   */
-  name: string;
-
-  /** One liner of the jsDoc */
-  length: number;
-}
-`;
-
-export const tcTypeWithJsDocProperty = `
-type CustomType {
+/**
+ * member 1: 1-71
+ * member 2: 72 - 121
+ */
+export const typeWithJsDocProperty = `{
   /**
    * Some jsDoc to describe the property
    */

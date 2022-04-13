@@ -1,6 +1,6 @@
 import * as ts from "typescript";
 
-import { ITsInterfaceNode, ITsTypeMemberNode, ITypeNode } from "./parser";
+import { ITsInterfaceNode, ITsNodeWithMembers, ITsTypeMemberNode, ITypeNode } from "./parser";
 import { IConfigurator, IInterfaceSorterConfiguration } from "./configurator";
 
 export interface ISortedMemberElements {
@@ -9,11 +9,8 @@ export interface ISortedMemberElements {
 }
 
 export interface ITsSorter {
-  sortInterfaceElements(
-    interfaces: ITsInterfaceNode[]
-  ): ISortedMemberElements[];
   sortGenericTypeElements(
-    typeNodes: ITypeNode[]
+    typeNodes: ITsNodeWithMembers[]
   ): ISortedMemberElements[];
 }
 
@@ -31,96 +28,83 @@ export class SimpleTsSorter implements ITsSorter {
     this.configurator = configurator;
   }
 
-  public sortInterfaceElements(
-    interfaces: ITsInterfaceNode[]
+  public sortGenericTypeElements(
+    genericTypeElements: ITsNodeWithMembers[]
   ): ISortedMemberElements[] {
     const sortedInterfaceElements: ISortedMemberElements[] = [];
 
-    for (const i in interfaces) {
-      if (interfaces.hasOwnProperty(i)) {
-        const oneInterface = interfaces[i];
+    for (let i = 0; i < genericTypeElements.length; i++) {
+      const elementWithMembers = genericTypeElements[i];
 
-        if (!oneInterface.members) {
-          continue;
-        }
+      if (!elementWithMembers.members) {
+        continue;
+      }
 
-        const sortedElements = oneInterface.members.sort(
-          this.getSortFunction(
-            this.configurator.getValue("sortByCapitalLetterFirst") as boolean,
-            this.configurator.getValue("sortByRequiredElementFirst") as boolean
-          )
-        );
+      const sortedElements = elementWithMembers.members.sort(
+        this.getSortFunction(
+          this.configurator.getValue("sortByCapitalLetterFirst") as boolean,
+          this.configurator.getValue("sortByRequiredElementFirst") as boolean
+        )
+      );
 
-        let output = "";
+      let output = "";
 
-        const SPACE = " ".repeat(
-          this.configurator.getValue("indentSpace") as number
-        );
-        const NEWLINE = "\n";
+      const SPACE = " ".repeat(
+        this.configurator.getValue("indentSpace") as number
+      );
+      const NEWLINE = "\n";
 
-        let rangeToRemove: ts.TextRange | undefined = undefined;
+      let rangeToRemove: ts.TextRange | undefined = undefined;
 
-        for (let j = 0; j < sortedElements.length; j++) {
+      for (let j = 0; j < sortedElements.length; j++) {
+        output += NEWLINE;
+
+        if (
+          j !== 0 &&
+          (this.configurator.getValue("lineBetweenMembers") as boolean)
+        ) {
           output += NEWLINE;
+        }
 
-          if (
-            j !== 0 &&
-            (this.configurator.getValue("lineBetweenMembers") as boolean)
-          ) {
-            output += NEWLINE;
-          }
+        const element = sortedElements[j];
 
-          const element = sortedElements[j];
+        rangeToRemove = this.computeRemovalRange(element, rangeToRemove);
 
-          rangeToRemove = this.computeRemovalRange(element, rangeToRemove);
-
-          const comments = element.comments;
-          if (
-            comments &&
-            comments.leadingComment &&
-            comments.leadingComment.length > 0
-          ) {
-            output += SPACE;
-            output += comments.leadingComment
-              .map((c) => c.text)
-              .join(`${NEWLINE}${SPACE}`);
-            output += NEWLINE;
-          }
-
+        const comments = element.comments;
+        if (
+          comments &&
+          comments.leadingComment &&
+          comments.leadingComment.length > 0
+        ) {
           output += SPACE;
-          output += element.text;
-
-          if (
-            comments &&
-            comments.trailingComment &&
-            comments.trailingComment.length > 0
-          ) {
-            output += SPACE;
-            output += comments.trailingComment.map((c) => c.text).join("");
-          }
+          output += comments.leadingComment
+            .map((c) => c.text)
+            .join(`${NEWLINE}${SPACE}`);
+          output += NEWLINE;
         }
 
-        if (rangeToRemove) {
-          sortedInterfaceElements.push({
-            textToReplace: output,
-            rangeToRemove,
-          });
+        output += SPACE;
+        output += element.text;
+
+        if (
+          comments &&
+          comments.trailingComment &&
+          comments.trailingComment.length > 0
+        ) {
+          output += SPACE;
+          output += comments.trailingComment.map((c) => c.text).join("");
         }
+      }
+
+      if (rangeToRemove) {
+        sortedInterfaceElements.push({
+          textToReplace: output,
+          rangeToRemove,
+        });
       }
     }
 
     return sortedInterfaceElements;
-  }
-
-  public sortGenericTypeElements(typeNodes: ITypeNode[]): ISortedMemberElements[] {
-    const sortedElement = [];
-    for (let i = 0; i < typeNodes.length; i++) {
-      const typeNode = typeNodes[i];
-      if (typeNode.declaration.kind === ts.SyntaxKind.InterfaceDeclaration) {
-        sortedElement.push(...this.sortInterfaceElements([typeNode as ITsInterfaceNode]));
-      }
-    }
-    return sortedElement;
   }
 
   private computeRemovalRange(

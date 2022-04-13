@@ -89,7 +89,7 @@ export class SimpleTsParser implements ITsParser {
           start: lines.start,
           end: lines.end,
           comments: this.getComments(node, sourceFileText),
-          members: this.delintInterfaceElements(interfaceNode, sourceFile, sourceFileText)
+          members: this.getMembers(interfaceNode, sourceFile, sourceFileText)
         };
         typeNodes.push(delintedInterface);
         break;
@@ -98,7 +98,7 @@ export class SimpleTsParser implements ITsParser {
         const typeNode = node as ts.TypeAliasDeclaration;
         const lines = this.getCodeLineNumbers(node, sourceFile);
         if (typeNode.type.kind === ts.SyntaxKind.TypeLiteral) {
-          const members = this.delintTypeElements(typeNode.type as ts.TypeLiteralNode, sourceFile, sourceFileText);
+          const members = this.getMembers(typeNode.type as ts.TypeLiteralNode, sourceFile, sourceFileText);
           const delintedInterface: ITsTypeLiteralNode = {
             declaration: typeNode,
             start: lines.start,
@@ -147,29 +147,11 @@ export class SimpleTsParser implements ITsParser {
     return { start, end };
   }
 
-  private delintInterfaceElements(
-    node: ts.InterfaceDeclaration,
-    sourceFile: ts.SourceFile,
-    sourceFileText: string
-  ): ITsTypeMemberNode[] {
-    return node.members.map(x => {
-      const lines = this.getCodeLineNumbers(x, sourceFile);
-      const comments = this.getComments(x, sourceFileText);
-      return {
-        element: x,
-        text: x.getText(sourceFile).trim(),
-        start: lines.start,
-        end: lines.end,
-        comments
-      };
-    });
-  }
-
-  private delintTypeElements(
-    node: ts.TypeLiteralNode,
-    sourceFile: ts.SourceFile,
-    sourceFileText: string
-  ): ITsTypeMemberNode[] {
+  private getMembers<T extends { readonly members: ts.NodeArray<ts.TypeElement>; }>
+    (
+      node: T,
+      sourceFile: ts.SourceFile,
+      sourceFileText: string) {
     return node.members.map(x => {
       const lines = this.getCodeLineNumbers(x, sourceFile);
       const comments = this.getComments(x, sourceFileText);
