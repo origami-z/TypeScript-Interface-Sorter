@@ -7,7 +7,8 @@ import {
   tcInterfaceWithOneProperty,
   tcInterfaceWithExtends,
   tcInterfaceWithComment,
-  tcTypeWithJsDocProperty
+  typeWithJsDocProperty,
+  tcPrefixes
 } from "./test-cases";
 
 describe("Parser", () => {
@@ -45,8 +46,8 @@ describe("Parser", () => {
   });
 
   describe('parse number of types', () => {
-    test("test", () => {
-      const { nodes } = parser.parseTypeNodes(filePath, tcTypeWithJsDocProperty);
+    test.each(tcPrefixes)("test - %s", (prefix) => {
+      const { nodes } = parser.parseTypeNodes(filePath, prefix + typeWithJsDocProperty);
       expect(nodes.length).toBe(1);
       expect(nodes[0].members[0].text).toEqual('name: string;');
       expect(nodes[0].members[1].text).toEqual('length: number;');
