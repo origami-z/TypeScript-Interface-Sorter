@@ -105,6 +105,7 @@ export class SimpleTsParser implements ITsParser {
       }
       case ts.SyntaxKind.TypeAliasDeclaration: {
         const sortTypes = this.configurator.getValue("sortTypes") as boolean;
+        // Only parse `type` when settings is true
         if (!sortTypes) {
           break;
         }

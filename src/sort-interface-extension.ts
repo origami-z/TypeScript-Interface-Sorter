@@ -50,13 +50,13 @@ export class SortInterfaceExtension {
         );
 
         if (nodes.length > 0 && sourceFile) {
-          const sortedInterface = this.sorter.sortGenericTypeElements(nodes);
+          const sortedTypesWithElements = this.sorter.sortGenericTypeElements(nodes);
 
           if (event) {
             // Support sort on document save
           } else {
             window.activeTextEditor.edit((editorBuilder: TextEditorEdit) => {
-              sortedInterface.forEach((i) => {
+              sortedTypesWithElements.forEach((i) => {
                 editorBuilder.replace(
                   new Range(
                     this.getPosition(i.rangeToRemove.pos, sourceFile),
@@ -67,11 +67,10 @@ export class SortInterfaceExtension {
               });
             });
           }
+          const sortTypes = this.configurator.getValue("sortTypes") as boolean;
 
-          // TODO: Update message
           window.showInformationMessage(
-            `Successfully sorted ${sortedInterface.length} interface${sortedInterface.length > 1 ? "s" : ""
-            }`
+            `Successfully sorted ${sortedTypesWithElements.length} interface${sortTypes ? ' or type' : ''}.`
           );
         } else {
           window.showWarningMessage(
