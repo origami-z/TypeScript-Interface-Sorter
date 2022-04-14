@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2022-04-14
+
+### Added
+
+- `type` now can also be sorted on top of `interface`. Use `sortTypes` setting to turn it off.
+
 ## [0.2.2] - 2022-04-12
 
 ### Security
