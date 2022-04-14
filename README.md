@@ -2,7 +2,7 @@
 
 ## Features
 
-This extension allows you to sort properties of TypeScript interface.
+This extension allows you to sort members of TypeScript interface and type declaration.
 
 ![before command](./images/demo_before.png "Before sorting interface")
 
