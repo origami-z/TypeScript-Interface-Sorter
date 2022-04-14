@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `type` now can also be sorted on top of `interface`. Use `sortTypes` setting to turn it off.
 
+### Changed
+
+- Updated bundled `typescript` version to 4.6.3.
+
 ## [0.2.2] - 2022-04-12
 
 ### Security
