@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as ts from "typescript";
+import { defaultConfig, IConfigurator, IInterfaceSorterConfiguration, SimpleConfigurator } from "./configurator";
 
 export interface IComment {
   text: string;
@@ -45,6 +46,14 @@ export interface ITsParser {
 }
 
 export class SimpleTsParser implements ITsParser {
+  private configurator: IConfigurator<IInterfaceSorterConfiguration>;
+
+  public constructor(
+    configurator: IConfigurator<IInterfaceSorterConfiguration>
+  ) {
+    this.configurator = configurator;
+  }
+
   public parseTypeNodes(
     fullFilePath: string,
     _sourceText?: string | undefined
@@ -95,6 +104,11 @@ export class SimpleTsParser implements ITsParser {
         break;
       }
       case ts.SyntaxKind.TypeAliasDeclaration: {
+        const sortTypes = this.configurator.getValue("sortTypes") as boolean;
+        if (!sortTypes) {
+          break;
+        }
+
         const typeNode = node as ts.TypeAliasDeclaration;
         const lines = this.getCodeLineNumbers(node, sourceFile);
         if (typeNode.type.kind === ts.SyntaxKind.TypeLiteral) {

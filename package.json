@@ -69,6 +69,11 @@
           "type": "boolean",
           "default": false,
           "description": "Controls whether required property should be sorted first. If turned on, takes precedence over sortByCapitalLetterFirst option."
+        },
+        "tsInterfaceSorter.sortTypes": {
+          "type": "boolean",
+          "default": true,
+          "description": "When on, sort `type` as well as `interface`."
         }
       }
     }

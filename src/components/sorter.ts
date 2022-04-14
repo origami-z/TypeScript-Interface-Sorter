@@ -3,7 +3,7 @@ import * as ts from "typescript";
 import { ITsInterfaceNode, ITsNodeWithMembers, ITsTypeMemberNode, ITypeNode } from "./parser";
 import { IConfigurator, IInterfaceSorterConfiguration } from "./configurator";
 
-export interface ISortedMemberElements {
+export interface ISortedElements {
   textToReplace: string;
   rangeToRemove: ts.TextRange;
 }
@@ -11,7 +11,7 @@ export interface ISortedMemberElements {
 export interface ITsSorter {
   sortGenericTypeElements(
     typeNodes: ITsNodeWithMembers[]
-  ): ISortedMemberElements[];
+  ): ISortedElements[];
 }
 
 export type MemberCompareFunction = (
@@ -30,8 +30,8 @@ export class SimpleTsSorter implements ITsSorter {
 
   public sortGenericTypeElements(
     genericTypeElements: ITsNodeWithMembers[]
-  ): ISortedMemberElements[] {
-    const sortedInterfaceElements: ISortedMemberElements[] = [];
+  ): ISortedElements[] {
+    const sortedInterfaceElements: ISortedElements[] = [];
 
     for (let i = 0; i < genericTypeElements.length; i++) {
       const elementWithMembers = genericTypeElements[i];

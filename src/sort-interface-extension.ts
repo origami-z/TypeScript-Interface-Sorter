@@ -16,40 +16,25 @@ import {
   SimpleConfigurator,
   IConfiguration,
   IInterfaceSorterConfiguration,
+  defaultConfig,
 } from "./components/configurator";
 
 const EXTENSION_IDENTIFIER = "tsInterfaceSorter";
 
 export class SortInterfaceExtension {
-  /**
-   * Default configs. Don't forget to update `updateFromWorkspaceConfig` override as well.
-   * Otherwise settings change will not be taken into account.
-   */
-  private defaultConfig: IInterfaceSorterConfiguration = {
-    lineBetweenMembers: true,
-    indentSpace: 2,
-    sortByCapitalLetterFirst: false,
-    sortByRequiredElementFirst: false,
-  };
 
   private config: IConfiguration<IInterfaceSorterConfiguration> = {
-    default: this.defaultConfig,
+    default: defaultConfig,
   };
   private configurator: IConfigurator<IInterfaceSorterConfiguration> =
     new SimpleConfigurator(this.config);
-  private parser: ITsParser = new SimpleTsParser();
+  private parser: ITsParser = new SimpleTsParser(this.configurator);
   private sorter: ITsSorter = new SimpleTsSorter(this.configurator);
 
   public updateFromWorkspaceConfig() {
     const fullConfig = workspace.getConfiguration(EXTENSION_IDENTIFIER);
 
-    const override = {
-      lineBetweenMembers: fullConfig.emptyLineBetweenProperties,
-      sortByCapitalLetterFirst: fullConfig.sortByCapitalLetterFirst,
-      sortByRequiredElementFirst: fullConfig.sortByRequiredElementFirst,
-    };
-
-    this.configurator.setOverride(override);
+    this.configurator.setOverride(fullConfig as any);
   }
 
   public sortActiveWindowInterfaceMembers(event?: TextDocumentChangeEvent) {

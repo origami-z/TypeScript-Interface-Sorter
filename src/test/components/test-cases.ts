@@ -1,4 +1,4 @@
-export const tcPrefixes = ['interface IInterface ', 'type CustomType '];
+export const tcPrefixes = ['interface IInterface ', 'type CustomType = '];
 
 export const tcEmptyInterface = `
 interface IInterface {} 
@@ -15,7 +15,7 @@ interface IInterface
 `;
 
 export const tcTypeWithOneProperty = `
-type CustomType {
+type CustomType = {
   name: string;
 }
 `;

@@ -1,6 +1,7 @@
 import { SimpleTsParser } from "../../components/parser";
 import { SimpleTsSorter } from "../../components/sorter";
 import {
+  defaultConfig,
   IInterfaceSorterConfiguration,
   SimpleConfigurator,
 } from "../../components/configurator";
@@ -19,14 +20,8 @@ import {
 } from "./test-cases";
 
 describe("Sorter", () => {
-  const defaultConfig: IInterfaceSorterConfiguration = {
-    lineBetweenMembers: true,
-    indentSpace: 2,
-    sortByCapitalLetterFirst: false,
-    sortByRequiredElementFirst: false,
-  };
 
-  const parser = new SimpleTsParser();
+  const parser = new SimpleTsParser(new SimpleConfigurator({ default: defaultConfig }));
   const sorter = new SimpleTsSorter(
     new SimpleConfigurator({ default: defaultConfig })
   );
