@@ -1,22 +1,22 @@
 import * as ts from "typescript";
 
-import { ITsInterfaceNode, ITsInterfaceMemberNode } from "./parser";
+import { ITsInterfaceNode, ITsNodeWithMembers, ITsTypeMemberNode, ITypeNode } from "./parser";
 import { IConfigurator, IInterfaceSorterConfiguration } from "./configurator";
 
-export interface ISortedInterfaceElements {
+export interface ISortedElements {
   textToReplace: string;
   rangeToRemove: ts.TextRange;
 }
 
 export interface ITsSorter {
-  sortInterfaceElements(
-    interfaces: ITsInterfaceNode[]
-  ): ISortedInterfaceElements[];
+  sortGenericTypeElements(
+    typeNodes: ITsNodeWithMembers[]
+  ): ISortedElements[];
 }
 
 export type MemberCompareFunction = (
-  a: ITsInterfaceMemberNode,
-  b: ITsInterfaceMemberNode
+  a: ITsTypeMemberNode,
+  b: ITsTypeMemberNode
 ) => number;
 
 export class SimpleTsSorter implements ITsSorter {
@@ -28,81 +28,79 @@ export class SimpleTsSorter implements ITsSorter {
     this.configurator = configurator;
   }
 
-  public sortInterfaceElements(
-    interfaces: ITsInterfaceNode[]
-  ): ISortedInterfaceElements[] {
-    const sortedInterfaceElements: ISortedInterfaceElements[] = [];
+  public sortGenericTypeElements(
+    genericTypeElements: ITsNodeWithMembers[]
+  ): ISortedElements[] {
+    const sortedInterfaceElements: ISortedElements[] = [];
 
-    for (const i in interfaces) {
-      if (interfaces.hasOwnProperty(i)) {
-        const oneInterface = interfaces[i];
+    for (let i = 0; i < genericTypeElements.length; i++) {
+      const elementWithMembers = genericTypeElements[i];
 
-        if (!oneInterface.members) {
-          continue;
-        }
+      if (!elementWithMembers.members) {
+        continue;
+      }
 
-        const sortedElements = oneInterface.members.sort(
-          this.getSortFunction(
-            this.configurator.getValue("sortByCapitalLetterFirst") as boolean,
-            this.configurator.getValue("sortByRequiredElementFirst") as boolean
-          )
-        );
+      const sortedElements = elementWithMembers.members.sort(
+        this.getSortFunction(
+          this.configurator.getValue("sortByCapitalLetterFirst") as boolean,
+          this.configurator.getValue("sortByRequiredElementFirst") as boolean
+        )
+      );
 
-        let output = "";
+      let output = "";
 
-        const SPACE = " ".repeat(
-          this.configurator.getValue("indentSpace") as number
-        );
-        const NEWLINE = "\n";
+      const SPACE = " ".repeat(
+        this.configurator.getValue("indentSpace") as number
+      );
+      const NEWLINE = "\n";
 
-        let rangeToRemove: ts.TextRange | undefined = undefined;
+      let rangeToRemove: ts.TextRange | undefined = undefined;
 
-        for (let j = 0; j < sortedElements.length; j++) {
+      for (let j = 0; j < sortedElements.length; j++) {
+        output += NEWLINE;
+
+        if (
+          j !== 0 &&
+          (this.configurator.getValue("lineBetweenMembers") as boolean)
+        ) {
           output += NEWLINE;
+        }
 
-          if (
-            j !== 0 &&
-            (this.configurator.getValue("lineBetweenMembers") as boolean)
-          ) {
-            output += NEWLINE;
-          }
+        const element = sortedElements[j];
 
-          const element = sortedElements[j];
+        rangeToRemove = this.computeRemovalRange(element, rangeToRemove);
 
-          rangeToRemove = this.computeRemovalRange(element, rangeToRemove);
-
-          const comments = element.comments;
-          if (
-            comments &&
-            comments.leadingComment &&
-            comments.leadingComment.length > 0
-          ) {
-            output += SPACE;
-            output += comments.leadingComment
-              .map((c) => c.text)
-              .join(`${NEWLINE}${SPACE}`);
-            output += NEWLINE;
-          }
-
+        const comments = element.comments;
+        if (
+          comments &&
+          comments.leadingComment &&
+          comments.leadingComment.length > 0
+        ) {
           output += SPACE;
-          output += element.text;
-
-          if (
-            comments &&
-            comments.trailingComment &&
-            comments.trailingComment.length > 0
-          ) {
-            output += SPACE;
-            output += comments.trailingComment.map((c) => c.text).join("");
-          }
+          output += comments.leadingComment
+            .map((c) => c.text)
+            .join(`${NEWLINE}${SPACE}`);
+          output += NEWLINE;
         }
 
-        if (rangeToRemove) {
-          sortedInterfaceElements.push({
-            textToReplace: output,
-            rangeToRemove,
-          });
+        output += SPACE;
+        output += element.text;
+
+        if (
+          comments &&
+          comments.trailingComment &&
+          comments.trailingComment.length > 0
+        ) {
+          output += SPACE;
+          output += comments.trailingComment.map((c) => c.text).join("");
         }
+      }
+
+      if (rangeToRemove) {
+        sortedInterfaceElements.push({
+          textToReplace: output,
+          rangeToRemove,
+        });
       }
     }
 
@@ -110,7 +108,7 @@ export class SimpleTsSorter implements ITsSorter {
   }
 
   private computeRemovalRange(
-    element: ITsInterfaceMemberNode,
+    element: ITsTypeMemberNode,
     rangeToRemove: ts.TextRange | undefined
   ): ts.TextRange | undefined {
     const node = element.element;
@@ -188,7 +186,7 @@ export class SimpleTsSorter implements ITsSorter {
     sortCapitalFirst: boolean = false,
     requiredFirst: boolean = false
   ): MemberCompareFunction => {
-    return (a: ITsInterfaceMemberNode, b: ITsInterfaceMemberNode): number => {
+    return (a: ITsTypeMemberNode, b: ITsTypeMemberNode): number => {
       const nameA = this.getStringFromName(a.element.name);
       const nameB = this.getStringFromName(b.element.name);
       if (nameA && nameB) {

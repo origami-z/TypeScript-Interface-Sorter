@@ -3,7 +3,19 @@ export interface IInterfaceSorterConfiguration {
   lineBetweenMembers?: boolean;
   sortByCapitalLetterFirst?: boolean;
   sortByRequiredElementFirst?: boolean;
+  sortTypes?: boolean;
 }
+
+/**
+ * Default configs.
+ */
+export const defaultConfig: IInterfaceSorterConfiguration = {
+  lineBetweenMembers: true,
+  indentSpace: 2,
+  sortByCapitalLetterFirst: false,
+  sortByRequiredElementFirst: false,
+  sortTypes: true
+};
 
 export type InterfaceSorterConfigurationKeys =
   keyof IInterfaceSorterConfiguration;

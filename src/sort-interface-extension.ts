@@ -16,40 +16,25 @@ import {
   SimpleConfigurator,
   IConfiguration,
   IInterfaceSorterConfiguration,
+  defaultConfig,
 } from "./components/configurator";
 
 const EXTENSION_IDENTIFIER = "tsInterfaceSorter";
 
 export class SortInterfaceExtension {
-  /**
-   * Default configs. Don't forget to update `updateFromWorkspaceConfig` override as well.
-   * Otherwise settings change will not be taken into account.
-   */
-  private defaultConfig: IInterfaceSorterConfiguration = {
-    lineBetweenMembers: true,
-    indentSpace: 2,
-    sortByCapitalLetterFirst: false,
-    sortByRequiredElementFirst: false,
-  };
 
   private config: IConfiguration<IInterfaceSorterConfiguration> = {
-    default: this.defaultConfig,
+    default: defaultConfig,
   };
   private configurator: IConfigurator<IInterfaceSorterConfiguration> =
     new SimpleConfigurator(this.config);
-  private parser: ITsParser = new SimpleTsParser();
+  private parser: ITsParser = new SimpleTsParser(this.configurator);
   private sorter: ITsSorter = new SimpleTsSorter(this.configurator);
 
   public updateFromWorkspaceConfig() {
     const fullConfig = workspace.getConfiguration(EXTENSION_IDENTIFIER);
 
-    const override = {
-      lineBetweenMembers: fullConfig.emptyLineBetweenProperties,
-      sortByCapitalLetterFirst: fullConfig.sortByCapitalLetterFirst,
-      sortByRequiredElementFirst: fullConfig.sortByRequiredElementFirst,
-    };
-
-    this.configurator.setOverride(override);
+    this.configurator.setOverride(fullConfig as any);
   }
 
   public sortActiveWindowInterfaceMembers(event?: TextDocumentChangeEvent) {
@@ -59,19 +44,19 @@ export class SortInterfaceExtension {
           ? event.document
           : window.activeTextEditor.document;
         const text = doc.getText();
-        const { nodes, sourceFile } = this.parser.parseInterface(
+        const { nodes, sourceFile } = this.parser.parseTypeNodes(
           doc.uri.fsPath,
           text
         );
 
         if (nodes.length > 0 && sourceFile) {
-          const sortedInterface = this.sorter.sortInterfaceElements(nodes);
+          const sortedTypesWithElements = this.sorter.sortGenericTypeElements(nodes);
 
           if (event) {
             // Support sort on document save
           } else {
             window.activeTextEditor.edit((editorBuilder: TextEditorEdit) => {
-              sortedInterface.forEach((i) => {
+              sortedTypesWithElements.forEach((i) => {
                 editorBuilder.replace(
                   new Range(
                     this.getPosition(i.rangeToRemove.pos, sourceFile),
@@ -82,11 +67,10 @@ export class SortInterfaceExtension {
               });
             });
           }
+          const sortTypes = this.configurator.getValue("sortTypes") as boolean;
 
           window.showInformationMessage(
-            `Successfully sorted ${sortedInterface.length} interface${
-              sortedInterface.length > 1 ? "s" : ""
-            }`
+            `Successfully sorted ${sortedTypesWithElements.length} interface${sortTypes ? ' or type' : ''}.`
           );
         } else {
           window.showWarningMessage(
