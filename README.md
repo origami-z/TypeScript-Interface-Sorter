@@ -1,4 +1,4 @@
-# TypeScript Interface Sorter
+# TypeScript Interface Sorter 
 
 ## Features
 
@@ -18,3 +18,5 @@ This extension contributes the following settings:
 - `tsInterfaceSorter.sortByCapitalLetterFirst`: Controls whether properties started with capital letters should be sorted first separately before lower case ones.
 - `tsInterfaceSorter.sortByRequiredElementFirst`: Controls whether required property should be sorted first. If turned on, takes precedence over `sortByCapitalLetterFirst` option.
 - `tsInterfaceSorter.sortTypes`: When on, sort `type` as well as `interface`.
+
+Test
