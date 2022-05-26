@@ -4,11 +4,11 @@
 
 This extension allows you to sort members of TypeScript interface and type declaration.
 
-![before command](./images/demo_before.png "Before sorting interface")
+![before command](./images/demo%20before.png "Before sorting interface")
 
-![find command](./images/demo_command_menu.png "Find sort command")
+![find command](./images/demo%20command_menu.png "Find sort command")
 
-![after command](./images/demo_after.png "After sorting interface")
+![after command](./images/demo%20after.png "After sorting interface")
 
 ## Extension Settings
 
