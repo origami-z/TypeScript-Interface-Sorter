@@ -61,7 +61,7 @@ export class SimpleTsSorter implements ITsSorter {
 
         if (
           j !== 0 &&
-          (this.configurator.getValue("lineBetweenMembers") as boolean)
+          (this.configurator.getValue("emptyLineBetweenProperties") as boolean)
         ) {
           output += NEWLINE;
         }

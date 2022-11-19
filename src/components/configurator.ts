@@ -1,6 +1,6 @@
 export interface IInterfaceSorterConfiguration {
   indentSpace?: number;
-  lineBetweenMembers?: boolean;
+  emptyLineBetweenProperties?: boolean;
   sortByCapitalLetterFirst?: boolean;
   sortByRequiredElementFirst?: boolean;
   sortTypes?: boolean;
@@ -10,7 +10,7 @@ export interface IInterfaceSorterConfiguration {
  * Default configs.
  */
 export const defaultConfig: IInterfaceSorterConfiguration = {
-  lineBetweenMembers: true,
+  emptyLineBetweenProperties: true,
   indentSpace: 2,
   sortByCapitalLetterFirst: false,
   sortByRequiredElementFirst: false,
