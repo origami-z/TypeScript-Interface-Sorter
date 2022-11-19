@@ -33,7 +33,6 @@ export class SortInterfaceExtension {
 
   public updateFromWorkspaceConfig() {
     const fullConfig = workspace.getConfiguration(EXTENSION_IDENTIFIER);
-
     this.configurator.setOverride(fullConfig as any);
   }
 
