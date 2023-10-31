@@ -22,7 +22,6 @@ import {
 const EXTENSION_IDENTIFIER = "tsInterfaceSorter";
 
 export class SortInterfaceExtension {
-
   private config: IConfiguration<IInterfaceSorterConfiguration> = {
     default: defaultConfig,
   };
@@ -33,7 +32,12 @@ export class SortInterfaceExtension {
 
   public updateFromWorkspaceConfig() {
     const fullConfig = workspace.getConfiguration(EXTENSION_IDENTIFIER);
-    this.configurator.setOverride(fullConfig as any);
+    // Setting: editor.tabSize
+    const editorConfig = workspace.getConfiguration("editor");
+    this.configurator.setOverride({
+      ...(fullConfig as any),
+      indentSpace: editorConfig.tabSize,
+    });
   }
 
   public sortActiveWindowInterfaceMembers(event?: TextDocumentChangeEvent) {
@@ -49,7 +53,8 @@ export class SortInterfaceExtension {
         );
 
         if (nodes.length > 0 && sourceFile) {
-          const sortedTypesWithElements = this.sorter.sortGenericTypeElements(nodes);
+          const sortedTypesWithElements =
+            this.sorter.sortGenericTypeElements(nodes);
 
           if (event) {
             // Support sort on document save
@@ -69,7 +74,9 @@ export class SortInterfaceExtension {
           const sortTypes = this.configurator.getValue("sortTypes") as boolean;
 
           window.showInformationMessage(
-            `Successfully sorted ${sortedTypesWithElements.length} interface${sortTypes ? ' or type' : ''}.`
+            `Successfully sorted ${sortedTypesWithElements.length} interface${
+              sortTypes ? " or type" : ""
+            }.`
           );
         } else {
           window.showWarningMessage(
