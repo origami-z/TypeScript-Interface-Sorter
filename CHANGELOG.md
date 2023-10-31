@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2023-10-31
+
+- Indent space takes `editor.tabSize`` setting
+
 ## [0.3.1] - 2022-11-14
 
 - Fix `emptyLineBetweenProperties` not working
