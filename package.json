@@ -14,8 +14,8 @@
     "compile": "tsc -p ./",
     "lint": "eslint src --ext ts",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "test": "node ./out/test/runTest.js",
+    "pretest:e2e": "npm run compile && npm run lint",
+    "test:e2e": "node ./out/test/runTest.js",
     "test:unit": "jest",
     "vsce:package": "vsce package",
     "vsce:publish": "vsce publish",
@@ -32,6 +32,7 @@
     "@typescript-eslint/parser": "^4.11.1",
     "eslint": "^7.16.0",
     "jest": "^27.0.6",
+    "jest-environment-node": "^27.5.1",
     "ts-jest": "^27.0.4",
     "vscode-test": "^1.4.1"
   },
