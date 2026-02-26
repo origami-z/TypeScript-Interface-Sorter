@@ -1,4 +1,4 @@
-import * as ts from "typescript";
+import type * as ts from "typescript";
 import {
   TextDocumentChangeEvent,
   window,
@@ -18,6 +18,7 @@ import {
   IInterfaceSorterConfiguration,
   defaultConfig,
 } from "./components/configurator";
+import { resolveTypeScript, TypeScriptApi } from "./typescript-provider";
 
 const EXTENSION_IDENTIFIER = "tsInterfaceSorter";
 
@@ -29,6 +30,7 @@ export class SortInterfaceExtension {
     new SimpleConfigurator(this.config);
   private parser: ITsParser = new SimpleTsParser(this.configurator);
   private sorter: ITsSorter = new SimpleTsSorter(this.configurator);
+  private resolvedTypeScriptVersion: string | undefined;
 
   public updateFromWorkspaceConfig() {
     const fullConfig = workspace.getConfiguration(EXTENSION_IDENTIFIER);
@@ -38,6 +40,34 @@ export class SortInterfaceExtension {
       ...(fullConfig as any),
       indentSpace: editorConfig.tabSize,
     });
+
+    // Resolve TypeScript version based on user setting
+    const tsApi = this.resolveTypeScriptApi(fullConfig);
+    this.parser = new SimpleTsParser(this.configurator, tsApi);
+  }
+
+  private resolveTypeScriptApi(
+    fullConfig: ReturnType<typeof workspace.getConfiguration>
+  ): TypeScriptApi | undefined {
+    const useWorkspaceTs = fullConfig.get<boolean>(
+      "useWorkspaceTypeScript",
+      false
+    );
+    if (!useWorkspaceTs) {
+      this.resolvedTypeScriptVersion = undefined;
+      return undefined; // use bundled (default)
+    }
+
+    const tsdk = workspace.getConfiguration("typescript").get<string>("tsdk");
+    const workspacePaths = (workspace.workspaceFolders || []).map(
+      (f) => f.uri.fsPath
+    );
+    const resolved = resolveTypeScript(tsdk, workspacePaths);
+    this.resolvedTypeScriptVersion =
+      resolved.resolvedFrom !== "bundled"
+        ? `${resolved.version} (${resolved.resolvedFrom})`
+        : undefined;
+    return resolved.tsModule;
   }
 
   public sortActiveWindowInterfaceMembers(event?: TextDocumentChangeEvent) {
@@ -73,10 +103,13 @@ export class SortInterfaceExtension {
           }
           const sortTypes = this.configurator.getValue("sortTypes") as boolean;
 
+          const tsVersionInfo = this.resolvedTypeScriptVersion
+            ? ` (using TypeScript ${this.resolvedTypeScriptVersion})`
+            : "";
           window.showInformationMessage(
             `Successfully sorted ${sortedTypesWithElements.length} interface${
               sortTypes ? " or type" : ""
-            }.`
+            }.${tsVersionInfo}`
           );
         } else {
           window.showWarningMessage(
