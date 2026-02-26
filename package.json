@@ -74,6 +74,11 @@
           "type": "boolean",
           "default": true,
           "description": "When on, sort `type` as well as `interface`."
+        },
+        "tsInterfaceSorter.useWorkspaceTypeScript": {
+          "type": "boolean",
+          "default": false,
+          "description": "When enabled, uses the TypeScript version from the workspace or the version selected in VS Code ('TypeScript: Select TypeScript Version'), instead of the bundled version. This allows parsing newer TypeScript syntax supported by your project's TypeScript version."
         }
       }
     }

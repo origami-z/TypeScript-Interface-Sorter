@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as ts from "typescript";
+import type { TypeScriptApi } from "../typescript-provider";
 import { defaultConfig, IConfigurator, IInterfaceSorterConfiguration, SimpleConfigurator } from "./configurator";
 
 export interface IComment {
@@ -47,11 +48,14 @@ export interface ITsParser {
 
 export class SimpleTsParser implements ITsParser {
   private configurator: IConfigurator<IInterfaceSorterConfiguration>;
+  private tsApi: TypeScriptApi;
 
   public constructor(
-    configurator: IConfigurator<IInterfaceSorterConfiguration>
+    configurator: IConfigurator<IInterfaceSorterConfiguration>,
+    tsApi?: TypeScriptApi
   ) {
     this.configurator = configurator;
+    this.tsApi = tsApi || ts;
   }
 
   public parseTypeNodes(
@@ -70,7 +74,7 @@ export class SimpleTsParser implements ITsParser {
   }
 
   private createSourceFile(fullFilePath: string, sourceText: string): ts.SourceFile {
-    return ts.createSourceFile(fullFilePath, sourceText, ts.ScriptTarget.ES2016, false);
+    return this.tsApi.createSourceFile(fullFilePath, sourceText, this.tsApi.ScriptTarget.ES2016, false);
   }
 
   private delintFile(
@@ -129,7 +133,7 @@ export class SimpleTsParser implements ITsParser {
         break;
     }
 
-    ts.forEachChild(node, node => {
+    this.tsApi.forEachChild(node, node => {
       typeNodes.push(...this.delintTypeNodes(node, sourceFile, sourceFileText));
     });
 
@@ -138,9 +142,9 @@ export class SimpleTsParser implements ITsParser {
 
   private getComments(node: ts.Node, sourceFileText: string): IComments {
     const leadingComment = (
-      ts.getLeadingCommentRanges(sourceFileText, node.getFullStart()) || []
+      this.tsApi.getLeadingCommentRanges(sourceFileText, node.getFullStart()) || []
     ).map(range => this.getComment(range, sourceFileText));
-    const trailingComment = (ts.getTrailingCommentRanges(sourceFileText, node.getEnd()) || []).map(
+    const trailingComment = (this.tsApi.getTrailingCommentRanges(sourceFileText, node.getEnd()) || []).map(
       range => this.getComment(range, sourceFileText)
     );
     return { leadingComment, trailingComment };
