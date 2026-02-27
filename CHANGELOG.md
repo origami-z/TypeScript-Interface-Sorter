@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-02-27
+
+### Added
+
+- New `useWorkspaceTypeScript` setting to use the TypeScript version from the workspace or the version selected in VS Code, allowing parsing of newer TypeScript syntax.
+
+### Changed
+
+- Upgraded project dependencies to modern versions.
+- Updated GitHub Actions workflows to use Node 20 and latest action versions.
+
 ## [0.4.0] - 2023-10-31
 
 - Indent space takes `editor.tabSize`` setting
